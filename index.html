@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Our Shared Live Study Space</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="bg-slate-900 text-slate-100 min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="w-full max-w-4xl">
+        <h1 class="text-4xl font-extrabold text-center bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent mb-4 tracking-tight">
+            Our Shared Study Space 🌌
+        </h1>
+        
+        <div class="flex justify-center mb-10">
+            <button onclick="resetDayCounters()" class="bg-slate-800 hover:bg-slate-700 text-slate-400 hover:text-rose-400 border border-slate-700 font-medium text-xs uppercase tracking-wider py-2 px-4 rounded-xl cursor-pointer transition shadow-md flex items-center gap-2">
+                🔄 Reset Day Counters
+            </button>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+            
+            <div id="card-Vedant" class="bg-slate-800 p-6 rounded-2xl border border-slate-700 text-center shadow-xl transition-all duration-300">
+                <h2 class="text-2xl font-bold text-blue-400 mb-2">Vedant</h2>
+                <div id="status-Vedant" class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4">Offline</div>
+                <div id="time-Vedant" class="font-mono text-5xl font-bold text-slate-300 my-6 tracking-widest">00:00:00</div>
+                <button id="btn-Vedant" onclick="handleToggle('Vedant')" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl cursor-pointer transition shadow-lg shadow-blue-600/10">
+                    Start Studying
+                </button>
+            </div>
+
+            <div id="card-Girlfriend" class="bg-slate-800 p-6 rounded-2xl border border-slate-700 text-center shadow-xl transition-all duration-300">
+                <h2 class="text-2xl font-bold text-pink-400 mb-2">Harshal</h2>
+                <div id="status-Girlfriend" class="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4">Offline</div>
+                <div id="time-Girlfriend" class="font-mono text-5xl font-bold text-slate-300 my-6 tracking-widest">00:00:00</div>
+                <button id="btn-Girlfriend" onclick="handleToggle('Girlfriend')" class="w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-6 rounded-xl cursor-pointer transition shadow-lg shadow-pink-600/10">
+                    Start Studying
+                </button>
+            </div>
+
+        </div>
+
+        <div class="text-center mt-8 text-xs text-slate-500">
+            Clocks automatically sync with the cloud database.
+        </div>
+    </div>
+
+    <script>
+        // --- SUPABASE CONFIGURATION ---
+        const SUPABASE_URL = "https://ganihuchivtmynorgcgc.supabase.co"; 
+        const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhbmlodWNoaXZ0bXlub3JnY2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MzY1MTYsImV4cCI6MjA5NzAxMjUxNn0.cJTXzPmV_KkP5Vl25R7c2iOPA2SNbLe3Cn7hVUv4Yz0"; 
+        const _supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        // Core local state snapshot representation copies
+        let dbState = {
+            Vedant: { isActive: false, lastStartedAt: null, totalPastSeconds: 0 },
+            Girlfriend: { isActive: false, lastStartedAt: null, totalPastSeconds: 0 }
+        };
+
+        // Utility: Format seconds to standard HH:MM:SS string layouts
+        function formatTime(totalSeconds) {
+            let hrs = Math.floor(totalSeconds / 3600);
+            let mins = Math.floor((totalSeconds % 3600) / 60);
+            let secs = totalSeconds % 60;
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // --- LIVE RENDERING TIMER LOOP ---
+        setInterval(() => {
+            ['Vedant', 'Girlfriend'].forEach(user => {
+                const state = dbState[user];
+                let currentDisplaySeconds = state.totalPastSeconds;
+
+                if (state.isActive && state.lastStartedAt) {
+                    const startTime = new Date(state.lastStartedAt).getTime();
+                    const now = new Date().getTime();
+                    const runningDelta = Math.floor((now - startTime) / 1000);
+                    
+                    if (runningDelta > 0) {
+                        currentDisplaySeconds += runningDelta;
+                    }
+                }
+                document.getElementById(`time-${user}`).textContent = formatTime(currentDisplaySeconds);
+            });
+        }, 1000);
+
+        // --- CLOUD SYNCHRONIZATION ENGINE ---
+        async function fetchDatabaseState() {
+            const { data, error } = await _supabase.from('study_sessions').select('*');
+            if (error || !data) return;
+
+            data.forEach(row => {
+                const user = row.user_name;
+                dbState[user] = {
+                    isActive: row.is_active,
+                    lastStartedAt: row.last_started_at,
+                    totalPastSeconds: row.total_past_seconds
+                };
+                updateCardUI(user);
+            });
+        }
+
+        // Updates theme layouts dynamically to show matching action highlights
+        function updateCardUI(user) {
+            const state = dbState[user];
+            const card = document.getElementById(`card-${user}`);
+            const status = document.getElementById(`status-${user}`);
+            const btn = document.getElementById(`btn-${user}`);
+
+            if (state.isActive) {
+                status.textContent = "⚡ Studying Live";
+                status.className = "text-xs font-semibold uppercase tracking-wider text-emerald-400 mb-4 animate-pulse";
+                btn.textContent = "Pause Session";
+                btn.className = "w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-3 px-6 rounded-xl cursor-pointer transition";
+                card.className = "bg-slate-800 p-6 rounded-2xl border-2 border-emerald-500/50 text-center shadow-xl shadow-emerald-950/20";
+            } else {
+                status.textContent = "Paused / Offline";
+                status.className = "text-xs font-semibold uppercase tracking-wider text-slate-500 mb-4";
+                btn.textContent = "Resume Studying";
+                btn.className = user === 'Vedant' 
+                    ? "w-full bg-blue-600 hover:bg-blue-500 text-white font-bold py-3 px-6 rounded-xl cursor-pointer transition"
+                    : "w-full bg-pink-600 hover:bg-pink-500 text-white font-bold py-3 px-6 rounded-xl cursor-pointer transition";
+                card.className = "bg-slate-800 p-6 rounded-2xl border border-slate-700 text-center shadow-xl";
+            }
+        }
+
+        // --- PLAY / PAUSE LOGIC ---
+        async function handleToggle(user) {
+            const state = dbState[user];
+            const now = new Date().toISOString();
+
+            if (!state.isActive) {
+                // START / RESUME
+                dbState[user].isActive = true;
+                dbState[user].lastStartedAt = now;
+                updateCardUI(user);
+
+                await _supabase.from('study_sessions')
+                    .update({ is_active: true, last_started_at: now })
+                    .eq('user_name', user);
+            } else {
+                // PAUSE
+                const startTime = new Date(state.lastStartedAt).getTime();
+                const currentNow = new Date().getTime();
+                const sessionDelta = Math.floor((currentNow - startTime) / 1000);
+                
+                if (sessionDelta > 0) {
+                    const updatedTotal = state.totalPastSeconds + sessionDelta;
+
+                    dbState[user].isActive = false;
+                    dbState[user].totalPastSeconds = updatedTotal;
+                    dbState[user].lastStartedAt = null;
+                    updateCardUI(user);
+
+                    // 1. Save state back to main real-time dashboard table
+                    await _supabase.from('study_sessions')
+                        .update({ is_active: false, last_started_at: null, total_past_seconds: updatedTotal })
+                        .eq('user_name', user);
+
+                    // 2. Commit log record into historical archive table
+                    await _supabase.from('study_history')
+                        .insert([{ user_name: user, duration_seconds: sessionDelta }]);
+                } else {
+                    dbState[user].isActive = false;
+                    dbState[user].lastStartedAt = null;
+                    updateCardUI(user);
+
+                    await _supabase.from('study_sessions')
+                        .update({ is_active: false, last_started_at: null })
+                        .eq('user_name', user);
+                }
+            }
+        }
+
+        // --- MANUAL SLATE CLEAR FEATURE ---
+        async function resetDayCounters() {
+            const confirmation = confirm("Are you sure you want to clear your current day's dashboard counters back to 00:00:00? (Your past history is safe!)");
+            if (!confirmation) return;
+
+            // Forces any currently running session state details to close down locally first
+            ['Vedant', 'Girlfriend'].forEach(user => {
+                dbState[user].isActive = false;
+                dbState[user].lastStartedAt = null;
+                dbState[user].totalPastSeconds = 0;
+                updateCardUI(user);
+            });
+
+            // Wipe out counter trackers across both profile rows in Supabase cloud cluster
+            await _supabase.from('study_sessions')
+                .update({ is_active: false, last_started_at: null, total_past_seconds: 0 })
+                .neq('user_name', 'some_impossible_value'); // Target all records seamlessly
+                
+            fetchDatabaseState();
+        }
+
+        // Run an instant baseline fetch on open, then set a recursive sync pulse every 5 seconds
+        fetchDatabaseState();
+        setInterval(fetchDatabaseState, 5000);
+    </script>
+</body>
+</html>
