@@ -145,6 +145,47 @@ input[type=text]::placeholder{color:#475569;}
   .pie-wrap svg{width:120px;height:120px;}
   .pie-pct{font-size:18px;}
 }
+
+/* ── desktop enhancements ── */
+@media(min-width:768px){
+  body{padding:32px 24px;background:#020810;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(37,99,235,.07) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%,rgba(219,39,119,.06) 0%,transparent 55%);pointer-events:none;z-index:0;}
+  .page{max-width:1100px;position:relative;z-index:1;}
+
+  /* header */
+  .desktop-header h1{font-size:28px;}
+
+  /* two-col user cards */
+  .user-cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
+  .user-cards-grid .card{margin-bottom:0 !important;}
+
+  /* card header bigger timer */
+  .card-header{padding:20px 22px;}
+  .timer{font-size:34px;}
+  .user-name-v,.user-name-g{font-size:20px;}
+  .section{padding:16px 22px;}
+
+  /* bigger pie charts */
+  .charts-grid{gap:16px;}
+  .pie-card{padding:20px 18px;}
+  .pie-wrap{width:170px;height:170px;}
+  .pie-wrap svg{width:170px;height:170px;}
+  .pie-pct{font-size:26px;}
+  .legend-name{font-size:12px;}
+  .legend-time{font-size:12px;}
+
+  /* card glow on hover */
+  .card{transition:box-shadow .2s,border-color .2s;}
+  .card:hover{border-color:#334155;box-shadow:0 8px 40px rgba(0,0,0,.5);}
+
+  /* modal centered on desktop */
+  .modal-overlay{align-items:center;}
+  .modal{border-radius:20px;max-width:520px;max-height:80dvh;}
+  .modal-handle{display:none;}
+
+  /* countdown card */
+  .uceed-card-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;}
+}
 </style>
 </head>
 <body>
@@ -155,6 +196,9 @@ input[type=text]::placeholder{color:#475569;}
     <h1 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Our Study Space 🌌</h1>
     <button class="btn" style="background:#0f172a;border:1px solid #1e293b;color:#475569;font-size:11px;padding:8px 12px;" onclick="resetDayCounters()">🔄 Reset Day</button>
   </div>
+
+  <!-- ════ USER CARDS GRID ════ -->
+  <div class="user-cards-grid" style="margin-bottom:16px;">
 
   <!-- ════ VEDANT CARD ════ -->
   <div id="card-Vedant" class="card" style="margin-bottom:12px;">
@@ -174,6 +218,8 @@ input[type=text]::placeholder{color:#475569;}
           <option value="">— Quick pick —</option>
           <option value="📚 Studying">📚 Studying</option>
           <option value="🏫 In School">🏫 In School</option>
+          <option value="🏋️ Exercise">🏋️ Exercise</option>
+          <option value="🎮 Gaming">🎮 Gaming</option>
           <option value="😴 Sleeping">😴 Sleeping</option>
           <option value="🍽️ Eating">🍽️ Eating</option>
           <option value="😌 Chilling">😌 Chilling</option>
@@ -208,10 +254,10 @@ input[type=text]::placeholder{color:#475569;}
   </div>
 
   <!-- ════ HARSHAL CARD ════ -->
-  <div id="card-Girlfriend" class="card" style="margin-bottom:20px;">
+  <div id="card-Girlfriend" class="card" style="margin-bottom:0;">
     <div class="card-header">
       <div>
-        <div class="user-name-g">Nightfury</div>
+        <div class="user-name-g">Lightfury</div>
         <div id="status-Girlfriend" class="status">Offline</div>
       </div>
       <div id="time-Girlfriend" class="timer mono">00:00:00</div>
@@ -225,6 +271,8 @@ input[type=text]::placeholder{color:#475569;}
           <option value="">— Quick pick —</option>
           <option value="📚 Studying">📚 Studying</option>
           <option value="🏫 In School">🏫 In School</option>
+          <option value="🏋️ Exercise">🏋️ Exercise</option>
+          <option value="🎮 Gaming">🎮 Gaming</option>
           <option value="😴 Sleeping">😴 Sleeping</option>
           <option value="🍽️ Eating">🍽️ Eating</option>
           <option value="😌 Chilling">😌 Chilling</option>
@@ -258,6 +306,8 @@ input[type=text]::placeholder{color:#475569;}
     </div>
   </div>
 
+  </div><!-- /user-cards-grid -->
+
   <!-- ════ PIE CHARTS ════ -->
   <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;padding:0 2px;">
     <div class="label">Today's Breakdown</div>
@@ -276,7 +326,7 @@ input[type=text]::placeholder{color:#475569;}
       <div id="pie-legend-Vedant"></div>
     </div>
     <div class="pie-card">
-      <div style="font-size:12px;font-weight:700;color:#f472b6;margin-bottom:2px;">Nightfury</div>
+      <div style="font-size:12px;font-weight:700;color:#f472b6;margin-bottom:2px;">Lightfury</div>
       <div class="pie-wrap">
         <svg id="pie-svg-Girlfriend" viewBox="0 0 140 140"></svg>
         <div class="pie-center">
@@ -419,6 +469,8 @@ let currentModalUser = null;
 const ACT_COLORS = {
   '📚 Studying':'#6366f1',
   '🏫 In School':'#0ea5e9',
+  '🏋️ Exercise':'#f97316',
+  '🎮 Gaming':'#22d3ee',
   '😴 Sleeping':'#8b5cf6',
   '🍽️ Eating':'#f59e0b',
   '😌 Chilling':'#10b981',
@@ -522,17 +574,20 @@ async function saveNowDoing(u){
   const inp=document.getElementById(`nd-inp-${u}`);
   let text=sel.value==='custom'?inp.value.trim():sel.value;
   if(!text)return;
-  // Close previous activity
+  // Close previous activity and log it
   if(activeActivity[u]){
     const prev=activeActivity[u];
     const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
     if(secs>30){activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:new Date().toISOString(),seconds:secs}); await saveActivityLog(u);}
   }
-  activeActivity[u]={activity:text,startedAt:new Date().toISOString()};
+  const startedAt=new Date().toISOString();
+  activeActivity[u]={activity:text,startedAt};
   nowDoing[u]=text;
   inp.value=''; inp.style.display='none'; sel.value='';
   renderNowDoing(u); renderPie(u);
+  // Save both the display text AND the active activity so other devices can restore live tracking
   await _sb.from('app_state').upsert({key:`nowdoing_${u}`,value:text},{onConflict:'key'});
+  await _sb.from('app_state').upsert({key:`activeact_${u}`,value:JSON.stringify({activity:text,startedAt})},{onConflict:'key'});
 }
 
 async function clearNowDoing(u){
@@ -546,7 +601,9 @@ async function clearNowDoing(u){
   document.getElementById(`nd-disp-${u}`).style.display='none';
   document.getElementById(`nd-sel-${u}`).value='';
   renderPie(u);
+  // Clear both nowdoing and activeact so other devices stop tracking this activity live
   await _sb.from('app_state').upsert({key:`nowdoing_${u}`,value:''},{onConflict:'key'});
+  await _sb.from('app_state').upsert({key:`activeact_${u}`,value:'null'},{onConflict:'key'});
 }
 
 function renderNowDoing(u){
@@ -557,9 +614,39 @@ function renderNowDoing(u){
 }
 
 async function fetchNowDoing(){
-  const {data}=await _sb.from('app_state').select('*').in('key',['nowdoing_Vedant','nowdoing_Girlfriend']);
+  // Fetch both nowdoing text and activeact (which carries the startedAt for live pie tracking)
+  const {data}=await _sb.from('app_state').select('*').in('key',[
+    'nowdoing_Vedant','nowdoing_Girlfriend',
+    'activeact_Vedant','activeact_Girlfriend'
+  ]);
   if(!data)return;
-  data.forEach(r=>{const u=r.key.replace('nowdoing_',''); nowDoing[u]=r.value||''; renderNowDoing(u);});
+  // First pass: restore activeActivity so pie chart can show live time
+  data.forEach(r=>{
+    if(!r.key.startsWith('activeact_')) return;
+    const u=r.key.replace('activeact_','');
+    try{
+      const parsed=(r.value&&r.value!=='null')?JSON.parse(r.value):null;
+      // Only restore if it is today (guard against stale data from yesterday)
+      if(parsed&&parsed.startedAt){
+        const todayStart=new Date(); todayStart.setHours(0,0,0,0);
+        if(new Date(parsed.startedAt)>=todayStart){
+          activeActivity[u]={activity:parsed.activity,startedAt:parsed.startedAt};
+        } else {
+          activeActivity[u]=null;
+        }
+      } else {
+        activeActivity[u]=null;
+      }
+    }catch(e){ activeActivity[u]=null; }
+  });
+  // Second pass: restore display text and re-render
+  data.forEach(r=>{
+    if(!r.key.startsWith('nowdoing_')) return;
+    const u=r.key.replace('nowdoing_','');
+    nowDoing[u]=r.value||'';
+    renderNowDoing(u);
+    renderPie(u);
+  });
 }
 
 // ════════════════════════════════
@@ -698,7 +785,7 @@ function renderDaily(u){
 function openModal(u){
   currentModalUser=u;
   const isV=u==='Vedant';
-  document.getElementById('modal-title').textContent=`${isV?'Nightfury (Blue)':'Nightfury (Pink)'}'s Master To-Do`;
+  document.getElementById('modal-title').textContent=`${isV?'Nightfury ⚡':'Lightfury 🌸'}'s Master To-Do`;
   document.getElementById('modal-title').style.color=isV?'#60a5fa':'#f472b6';
   document.getElementById('modal-add-btn').className=`btn ${isV?'btn-add-v':'btn-add-g'}`;
   document.getElementById('modal-inp').style.borderColor='';
@@ -831,14 +918,15 @@ async function init(){
 }
 init();
 
-setInterval(fetchSessions,5000);
-setInterval(()=>{ ['Vedant','Girlfriend'].forEach(renderPie); },15000);
+// ── Unified 10-second sync: everything from Supabase, then re-render pies ──
 setInterval(async()=>{
-  await fetchNowDoing();
+  await fetchSessions();
+  await fetchNowDoing();      // also restores activeActivity for live pie tracking
+  await fetchActivityLog();   // completed activity segments
   await fetchMasterTodos();
   await fetchDailyTodos();
-  await fetchActivityLog();
-},12000);
+  ['Vedant','Girlfriend'].forEach(renderPie);
+},10000);
 </script>
 </body>
 </html>
