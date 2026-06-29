@@ -508,20 +508,22 @@ function updateCardUI(u){
 }
 
 // ════════════════════════════════
-// APP_STATE — single upsert helper
+// APP_STATE — upsert with full error visibility
 // ════════════════════════════════
 async function setState(key, value){
-  // value can be any JSON-serialisable thing
   const str = (value===null||value===undefined) ? 'null' : JSON.stringify(value);
-  const { error } = await _sb.from('app_state')
-    .upsert({ key, value: str }, { onConflict: 'key' });
-  if(error) console.error('setState error', key, error);
-}
-
-async function getState(key){
-  const { data, error } = await _sb.from('app_state').select('value').eq('key', key).maybeSingle();
-  if(error||!data) return null;
-  try { return JSON.parse(data.value); } catch(e){ return null; }
+  const { data, error } = await _sb
+    .from('app_state')
+    .upsert({ key, value: str }, { onConflict: 'key' })
+    .select();
+  if(error){
+    console.error(`❌ setState FAILED [${key}]:`, error.message, error.details, error.hint);
+    // Fallback: try plain insert in case upsert is broken
+    const { error: e2 } = await _sb.from('app_state').insert({ key, value: str });
+    if(e2) console.error(`❌ setState INSERT also FAILED [${key}]:`, e2.message);
+  } else {
+    console.log(`✅ setState OK [${key}]`, data);
+  }
 }
 
 // ════════════════════════════════
@@ -884,14 +886,9 @@ async function init(){
   // 1. Sessions
   await fetchSessions();
 
-  // 2. All app_state keys at once
-  const keys = [
-    'activeact_Vedant','activeact_Girlfriend',
-    'actlog_Vedant','actlog_Girlfriend',
-    'daily_Vedant','daily_Girlfriend',
-    'master_Vedant','master_Girlfriend'
-  ];
-  const { data: stateRows } = await _sb.from('app_state').select('key,value').in('key', keys);
+  // 2. Fetch ALL app_state rows (avoids missing keys that haven't been created yet)
+  const { data: stateRows, error: stateErr } = await _sb.from('app_state').select('key,value');
+  if(stateErr) console.error('init fetch error', stateErr);
   if(stateRows){
     stateRows.forEach(r => applyAppStateRow(r.key, r.value));
   }
@@ -902,9 +899,9 @@ async function init(){
   // 4. Render pies with initial data
   ['Vedant','Girlfriend'].forEach(renderPie);
 
-  // 5. Light fallback poll every 30s in case Realtime drops (websocket issues, etc.)
+  // 5. Light fallback poll every 30s in case Realtime drops
   setInterval(async()=>{
-    const { data } = await _sb.from('app_state').select('key,value').in('key', keys);
+    const { data } = await _sb.from('app_state').select('key,value');
     if(data) data.forEach(r => applyAppStateRow(r.key, r.value));
     await fetchSessions();
     ['Vedant','Girlfriend'].forEach(renderPie);
