@@ -375,14 +375,16 @@ input[type=text]::placeholder{color:#4b6175;}
 
 <script>
 // ════════════════════════════════
-// SUPABASE
+// SUPABASE — with Realtime enabled
 // ════════════════════════════════
 const SUPABASE_URL = "https://ganihuchivtmynorgcgc.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImdhbmlodWNoaXZ0bXlub3JnY2djIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODE0MzY1MTYsImV4cCI6MjA5NzAxMjUxNn0.cJTXzPmV_KkP5Vl25R7c2iOPA2SNbLe3Cn7hVUv4Yz0";
-const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  realtime: { params: { eventsPerSecond: 10 } }
+});
 
 // ════════════════════════════════
-// STATE
+// STATE — all sourced from Supabase, nothing from localStorage
 // ════════════════════════════════
 let dbState = {
   Vedant:    { isActive:false, lastStartedAt:null, totalPastSeconds:0 },
@@ -390,11 +392,10 @@ let dbState = {
 };
 let masterTodos  = { Vedant:[], Girlfriend:[] };
 let dailyTodos   = { Vedant:[], Girlfriend:[] };
-// activeActivity[u] = {activity, startedAt} | null  — source of truth for "now doing"
+// activeActivity[u] = {activity, startedAt} | null
 let activeActivity = { Vedant:null, Girlfriend:null };
-// activityLog[u] = [{activity,startedAt,endedAt,seconds}]  — completed segments
+// activityLog[u] = [{activity,startedAt,endedAt,seconds}]
 let activityLog  = { Vedant:[], Girlfriend:[] };
-
 let currentModalUser = null;
 
 const ACT_COLORS = {
@@ -410,11 +411,10 @@ const UNTRACKED_COLOR = '#1a2540';
 
 function actColor(a){ return ACT_COLORS[a]||'#7c3aed'; }
 function actEmoji(a){
-  const map={'📚 Studying':'📚','🏫 In School':'🏫','🏋️ Exercise':'🏋️',
-    '🎮 Gaming':'🎮','😴 Sleeping':'😴','🍽️ Eating':'🍽️','😌 Chilling':'😌'};
+  const map={'📚':'📚','🏫':'🏫','🏋':'🏋️','🎮':'🎮','😴':'😴','🍽':'🍽️','😌':'😌'};
   if(!a) return '💤';
-  for(const [k,v] of Object.entries(map)) if(a.startsWith(k.slice(0,2))) return v;
-  return '✨';
+  const first=[...a][0];
+  return map[first]||'✨';
 }
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
 function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
@@ -423,78 +423,58 @@ function fmtHM(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return 
 function fmtElapsed(ms){
   const s=Math.floor(ms/1000);
   if(s<60) return `${s}s`;
-  const m=Math.floor(s/60), h=Math.floor(m/60);
-  if(h>0) return `${h}h ${m%60}m`;
-  return `${m}m`;
+  const m=Math.floor(s/60),h=Math.floor(m/60);
+  return h>0?`${h}h ${m%60}m`:`${m}m`;
 }
+function todayStart(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
 
 // ════════════════════════════════
-// TICK LOOP — runs every second, no network
+// SECOND TICK — pure local, no network
 // ════════════════════════════════
 setInterval(()=>{
   ['Vedant','Girlfriend'].forEach(u=>{
-    // Study timer
     const s=dbState[u]; let secs=s.totalPastSeconds;
-    if(s.isActive&&s.lastStartedAt) secs+=Math.max(0,Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000));
+    if(s.isActive&&s.lastStartedAt)
+      secs+=Math.max(0,Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000));
     document.getElementById(`time-${u}`).textContent=fmtTime(secs);
 
-    // Activity elapsed timer
     const act=activeActivity[u];
     const elEl=document.getElementById(`aelapsed-${u}`);
     if(act&&act.startedAt){
-      const elapsed=Date.now()-new Date(act.startedAt).getTime();
-      elEl.textContent=fmtElapsed(elapsed);
+      elEl.textContent=fmtElapsed(Date.now()-new Date(act.startedAt).getTime());
       elEl.className='activity-elapsed live';
     } else {
-      elEl.textContent='';
-      elEl.className='activity-elapsed';
+      elEl.textContent=''; elEl.className='activity-elapsed';
     }
   });
 },1000);
 
 // ════════════════════════════════
-// RENDER ACTIVITY ROW
+// RENDER — activity row + card UI
 // ════════════════════════════════
 function renderActivityRow(u){
   const act=activeActivity[u];
-  const iconEl  = document.getElementById(`aicon-${u}`);
-  const nameEl  = document.getElementById(`aname-${u}`);
-  const clearEl = document.getElementById(`aclear-${u}`);
-  const chipsEl = document.getElementById(`chips-${u}`);
-
+  const iconEl=document.getElementById(`aicon-${u}`);
+  const nameEl=document.getElementById(`aname-${u}`);
+  const clearEl=document.getElementById(`aclear-${u}`);
+  const chipsEl=document.getElementById(`chips-${u}`);
   if(act&&act.activity){
-    iconEl.textContent = actEmoji(act.activity);
-    nameEl.textContent = act.activity;
-    nameEl.className   = 'activity-name';
-    clearEl.style.display = 'block';
-    // highlight active chip
+    iconEl.textContent=actEmoji(act.activity);
+    nameEl.textContent=act.activity;
+    nameEl.className='activity-name';
+    clearEl.style.display='block';
     chipsEl.querySelectorAll('.chip').forEach(c=>{
-      const isV=u==='Vedant';
       c.classList.remove('chip-active-v','chip-active-g');
-      if(c.textContent.trim().startsWith(actEmoji(act.activity))){
-        c.classList.add(isV?'chip-active-v':'chip-active-g');
-      }
+      if(c.textContent.trim().startsWith(actEmoji(act.activity)))
+        c.classList.add(u==='Vedant'?'chip-active-v':'chip-active-g');
     });
   } else {
-    iconEl.textContent = '💤';
-    nameEl.textContent = 'Nothing set';
-    nameEl.className   = 'activity-name empty';
-    clearEl.style.display = 'none';
+    iconEl.textContent='💤';
+    nameEl.textContent='Nothing set';
+    nameEl.className='activity-name empty';
+    clearEl.style.display='none';
     chipsEl.querySelectorAll('.chip').forEach(c=>c.classList.remove('chip-active-v','chip-active-g'));
   }
-}
-
-// ════════════════════════════════
-// STUDY SESSIONS
-// ════════════════════════════════
-async function fetchSessions(){
-  const {data}=await _sb.from('study_sessions').select('*');
-  if(!data)return;
-  data.forEach(r=>{
-    const u=r.user_name;
-    dbState[u]={isActive:r.is_active,lastStartedAt:r.last_started_at,totalPastSeconds:r.total_past_seconds};
-    updateCardUI(u);
-  });
 }
 
 function updateCardUI(u){
@@ -505,23 +485,19 @@ function updateCardUI(u){
   const btn=document.getElementById(`btn-${u}`);
   const isV=u==='Vedant';
   const act=activeActivity[u];
-
-  // Status pill
   if(s.isActive){
     statusPill.className='status-pill live';
     statusTxt.textContent='Studying Live';
     card.className='card '+(isV?'active-v':'active-g');
   } else if(act&&act.activity){
     statusPill.className='status-pill live';
-    statusTxt.textContent='Active';
+    statusTxt.textContent=act.activity.replace(/^\S+\s/,''); // strip emoji
     card.className='card';
   } else {
     statusPill.className='status-pill';
     statusTxt.textContent='Offline';
     card.className='card';
   }
-
-  // Study button (big, full-width at card bottom)
   if(s.isActive){
     btn.textContent='⏸ Pause Studying';
     btn.className=`btn ${isV?'btn-study-v':'btn-study-g'} active`;
@@ -531,148 +507,169 @@ function updateCardUI(u){
   }
 }
 
+// ════════════════════════════════
+// APP_STATE — single upsert helper
+// ════════════════════════════════
+async function setState(key, value){
+  // value can be any JSON-serialisable thing
+  const str = (value===null||value===undefined) ? 'null' : JSON.stringify(value);
+  const { error } = await _sb.from('app_state')
+    .upsert({ key, value: str }, { onConflict: 'key' });
+  if(error) console.error('setState error', key, error);
+}
+
+async function getState(key){
+  const { data, error } = await _sb.from('app_state').select('value').eq('key', key).maybeSingle();
+  if(error||!data) return null;
+  try { return JSON.parse(data.value); } catch(e){ return null; }
+}
+
+// ════════════════════════════════
+// APPLY A ROW FROM app_state REALTIME EVENT OR INITIAL FETCH
+// ════════════════════════════════
+function applyAppStateRow(key, rawValue){
+  let val;
+  try { val = JSON.parse(rawValue); } catch(e){ val = null; }
+  const ts = todayStart();
+
+  if(key==='activeact_Vedant'||key==='activeact_Girlfriend'){
+    const u=key.replace('activeact_','');
+    if(val&&val.startedAt&&new Date(val.startedAt)>=ts){
+      activeActivity[u]={activity:val.activity,startedAt:val.startedAt};
+    } else {
+      activeActivity[u]=null;
+    }
+    renderActivityRow(u); updateCardUI(u); renderPie(u);
+
+  } else if(key==='actlog_Vedant'||key==='actlog_Girlfriend'){
+    const u=key.replace('actlog_','');
+    activityLog[u]=(val||[]).filter(e=>new Date(e.startedAt)>=ts);
+    renderPie(u);
+
+  } else if(key==='daily_Vedant'||key==='daily_Girlfriend'){
+    const u=key.replace('daily_','');
+    // IMPORTANT: keep all items that were added today OR have no addedAt (legacy)
+    dailyTodos[u]=(val||[]).filter(t=>{
+      if(!t.addedAt) return true; // no date = keep
+      return new Date(t.addedAt)>=ts;
+    });
+    renderDaily(u);
+    if(currentModalUser===u) renderModal(u);
+
+  } else if(key==='master_Vedant'||key==='master_Girlfriend'){
+    const u=key.replace('master_','');
+    masterTodos[u]=val||[];
+    if(currentModalUser===u) renderModal(u);
+  }
+}
+
+// ════════════════════════════════
+// STUDY SESSIONS
+// ════════════════════════════════
+function applySessionRow(row){
+  const u=row.user_name;
+  dbState[u]={
+    isActive:row.is_active,
+    lastStartedAt:row.last_started_at,
+    totalPastSeconds:row.total_past_seconds
+  };
+  updateCardUI(u);
+}
+
+async function fetchSessions(){
+  const {data}=await _sb.from('study_sessions').select('*');
+  if(data) data.forEach(applySessionRow);
+}
+
 async function handleToggle(u){
   const s=dbState[u]; const now=new Date().toISOString();
   if(!s.isActive){
-    // Starting study — log any previous non-study activity first, then set Studying
     if(activeActivity[u]&&activeActivity[u].activity!=='📚 Studying'){
       const prev=activeActivity[u];
       const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
-      if(secs>30){activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:now,seconds:secs}); await saveActivityLog(u);}
+      if(secs>30){
+        activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:now,seconds:secs});
+        await setState(`actlog_${u}`, activityLog[u]);
+      }
     }
     activeActivity[u]={activity:'📚 Studying',startedAt:now};
     dbState[u].isActive=true; dbState[u].lastStartedAt=now;
     renderActivityRow(u); updateCardUI(u); renderPie(u);
-    await _sb.from('app_state').upsert({key:`activeact_${u}`,value:JSON.stringify({activity:'📚 Studying',startedAt:now})},{onConflict:'key'});
+    await setState(`activeact_${u}`, {activity:'📚 Studying',startedAt:now});
     await _sb.from('study_sessions').update({is_active:true,last_started_at:now}).eq('user_name',u);
-  }else{
-    // Pausing study — log the study segment, clear activeActivity
+  } else {
     const delta=Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000);
     const tot=delta>0?s.totalPastSeconds+delta:s.totalPastSeconds;
     if(delta>0){
       activityLog[u].push({activity:'📚 Studying',startedAt:s.lastStartedAt,endedAt:now,seconds:delta});
-      await saveActivityLog(u);
+      await setState(`actlog_${u}`, activityLog[u]);
     }
     activeActivity[u]=null;
     dbState[u]={isActive:false,lastStartedAt:null,totalPastSeconds:tot};
     renderActivityRow(u); updateCardUI(u); renderPie(u);
-    await _sb.from('app_state').upsert({key:`activeact_${u}`,value:'null'},{onConflict:'key'});
-    if(delta>0){
-      await _sb.from('study_sessions').update({is_active:false,last_started_at:null,total_past_seconds:tot}).eq('user_name',u);
-      await _sb.from('study_history').insert([{user_name:u,duration_seconds:delta}]);
-    }else{
-      await _sb.from('study_sessions').update({is_active:false,last_started_at:null}).eq('user_name',u);
-    }
+    await setState(`activeact_${u}`, null);
+    await _sb.from('study_sessions').update({
+      is_active:false,last_started_at:null,total_past_seconds:tot
+    }).eq('user_name',u);
+    if(delta>0) await _sb.from('study_history').insert([{user_name:u,duration_seconds:delta}]);
   }
 }
 
 async function resetDayCounters(){
   if(!confirm("Reset today's timers, activity chart, and daily tasks?"))return;
-  ['Vedant','Girlfriend'].forEach(u=>{
-    dbState[u]={isActive:false,lastStartedAt:null,totalPastSeconds:0}; updateCardUI(u);
-    activityLog[u]=[]; activeActivity[u]=null;
-    dailyTodos[u]=[]; renderDaily(u); renderPie(u); renderActivityRow(u);
-    _sb.from('app_state').upsert({key:`actlog_${u}`,value:'[]'},{onConflict:'key'});
-    _sb.from('app_state').upsert({key:`daily_${u}`,value:'[]'},{onConflict:'key'});
-    _sb.from('app_state').upsert({key:`activeact_${u}`,value:'null'},{onConflict:'key'});
-  });
-  await _sb.from('study_sessions').update({is_active:false,last_started_at:null,total_past_seconds:0}).neq('user_name','__impossible__');
+  for(const u of ['Vedant','Girlfriend']){
+    dbState[u]={isActive:false,lastStartedAt:null,totalPastSeconds:0};
+    activityLog[u]=[]; activeActivity[u]=null; dailyTodos[u]=[];
+    updateCardUI(u); renderActivityRow(u); renderDaily(u); renderPie(u);
+    await setState(`actlog_${u}`, []);
+    await setState(`daily_${u}`, []);
+    await setState(`activeact_${u}`, null);
+  }
+  await _sb.from('study_sessions')
+    .update({is_active:false,last_started_at:null,total_past_seconds:0})
+    .neq('user_name','__impossible__');
 }
 
 // ════════════════════════════════
-// NOW DOING / ACTIVITY
+// NOW DOING / ACTIVITY CHIPS
 // ════════════════════════════════
 function showCustom(u){
   const el=document.getElementById(`custom-${u}`);
   el.classList.toggle('show');
   if(el.classList.contains('show')) document.getElementById(`custom-inp-${u}`).focus();
 }
-
 function submitCustom(u){
   const inp=document.getElementById(`custom-inp-${u}`);
   const text=inp.value.trim(); if(!text)return;
-  inp.value='';
-  document.getElementById(`custom-${u}`).classList.remove('show');
-  setActivity(u, text);
+  inp.value=''; document.getElementById(`custom-${u}`).classList.remove('show');
+  setActivity(u,text);
 }
-
 async function setActivity(u, text){
-  // Close and log previous activity
   if(activeActivity[u]){
     const prev=activeActivity[u];
     const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
     if(secs>30){
       activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:new Date().toISOString(),seconds:secs});
-      await saveActivityLog(u);
+      await setState(`actlog_${u}`, activityLog[u]);
     }
   }
   const startedAt=new Date().toISOString();
   activeActivity[u]={activity:text,startedAt};
-  renderActivityRow(u);
-  updateCardUI(u);
-  renderPie(u);
-  // Persist to Supabase — both keys so fetchNowDoing can restore full state
-  await _sb.from('app_state').upsert({key:`activeact_${u}`,value:JSON.stringify({activity:text,startedAt})},{onConflict:'key'});
+  renderActivityRow(u); updateCardUI(u); renderPie(u);
+  await setState(`activeact_${u}`, {activity:text,startedAt});
 }
-
 async function clearNowDoing(u){
   if(activeActivity[u]){
     const prev=activeActivity[u];
     const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
     if(secs>30){
       activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:new Date().toISOString(),seconds:secs});
-      await saveActivityLog(u);
+      await setState(`actlog_${u}`, activityLog[u]);
     }
     activeActivity[u]=null;
   }
-  renderActivityRow(u);
-  updateCardUI(u);
-  renderPie(u);
-  await _sb.from('app_state').upsert({key:`activeact_${u}`,value:'null'},{onConflict:'key'});
-}
-
-// ── Fetch & restore activity state from Supabase (called on every 10s poll) ──
-async function fetchActivityState(){
-  const {data}=await _sb.from('app_state').select('*').in('key',[
-    'activeact_Vedant','activeact_Girlfriend'
-  ]);
-  if(!data)return;
-  const todayStart=new Date(); todayStart.setHours(0,0,0,0);
-  data.forEach(r=>{
-    const u=r.key.replace('activeact_','');
-    try{
-      const parsed=(r.value&&r.value!=='null')?JSON.parse(r.value):null;
-      if(parsed&&parsed.startedAt&&new Date(parsed.startedAt)>=todayStart){
-        activeActivity[u]={activity:parsed.activity,startedAt:parsed.startedAt};
-      } else {
-        activeActivity[u]=null;
-      }
-    }catch(e){ activeActivity[u]=null; }
-    renderActivityRow(u);
-    updateCardUI(u);
-  });
-}
-
-// ════════════════════════════════
-// ACTIVITY LOG
-// ════════════════════════════════
-async function saveActivityLog(u){
-  const todayStart=new Date(); todayStart.setHours(0,0,0,0);
-  activityLog[u]=activityLog[u].filter(e=>new Date(e.startedAt)>=todayStart);
-  await _sb.from('app_state').upsert({key:`actlog_${u}`,value:JSON.stringify(activityLog[u])},{onConflict:'key'});
-  renderPie(u);
-}
-
-async function fetchActivityLog(){
-  const {data}=await _sb.from('app_state').select('*').in('key',['actlog_Vedant','actlog_Girlfriend']);
-  if(!data)return;
-  const todayStart=new Date(); todayStart.setHours(0,0,0,0);
-  data.forEach(r=>{
-    const u=r.key.replace('actlog_','');
-    try{activityLog[u]=(JSON.parse(r.value)||[]).filter(e=>new Date(e.startedAt)>=todayStart);}
-    catch(e){activityLog[u]=[];}
-    renderPie(u);
-  });
+  renderActivityRow(u); updateCardUI(u); renderPie(u);
+  await setState(`activeact_${u}`, null);
 }
 
 // ════════════════════════════════
@@ -681,21 +678,17 @@ async function fetchActivityLog(){
 function buildAgg(u){
   const agg={};
   activityLog[u].forEach(e=>{ agg[e.activity]=(agg[e.activity]||0)+e.seconds; });
-  // Add live activity time
   if(activeActivity[u]){
     const live=Math.max(0,Math.floor((Date.now()-new Date(activeActivity[u].startedAt).getTime())/1000));
     if(live>0) agg[activeActivity[u].activity]=(agg[activeActivity[u].activity]||0)+live;
   }
-  // Merge study timer into 📚 Studying
   const sk='📚 Studying';
   let studySecs=dbState[u].totalPastSeconds;
   if(dbState[u].isActive&&dbState[u].lastStartedAt)
     studySecs+=Math.floor((Date.now()-new Date(dbState[u].lastStartedAt).getTime())/1000);
-  const explicitStudy=agg[sk]||0;
-  if(studySecs>explicitStudy) agg[sk]=studySecs;
+  if(studySecs>(agg[sk]||0)) agg[sk]=studySecs;
   return agg;
 }
-
 function renderPie(u){
   const svgEl=document.getElementById(`pie-svg-${u}`);
   const pctEl=document.getElementById(`pie-pct-${u}`);
@@ -706,12 +699,11 @@ function renderPie(u){
   const untracked=Math.max(0,DAY-totalTracked);
   const entries=Object.entries(agg).filter(([,s])=>s>0).sort((a,b)=>b[1]-a[1]);
   pctEl.textContent=`${Math.round((totalTracked/DAY)*100)}%`;
-
   const cx=70,cy=70,R=58,r=40;
   const allSlices=[...entries,['__untracked__',untracked]].filter(([,s])=>s>0);
-  let cumAngle=-Math.PI/2, paths='';
+  let cumAngle=-Math.PI/2,paths='';
   allSlices.forEach(([act,secs])=>{
-    const frac=secs/DAY, angle=frac*2*Math.PI;
+    const frac=secs/DAY,angle=frac*2*Math.PI;
     if(angle<0.001){cumAngle+=angle;return;}
     const x1=cx+R*Math.cos(cumAngle),y1=cy+R*Math.sin(cumAngle);
     const x2=cx+R*Math.cos(cumAngle+angle),y2=cy+R*Math.sin(cumAngle+angle);
@@ -725,37 +717,32 @@ function renderPie(u){
     cumAngle+=angle;
   });
   svgEl.innerHTML=paths;
-
-  const legendItems=entries.map(([act,secs])=>{
-    const isLive=activeActivity[u]&&activeActivity[u].activity===act;
-    return `<div class="legend-row"><div class="legend-dot" style="background:${actColor(act)};"></div><span class="legend-name">${escH(act)}${isLive?' <span style="color:#34d399;font-size:8px;"> ●</span>':''}</span><span class="legend-time">${fmtHM(secs)}</span></div>`;
-  });
-  if(untracked>0) legendItems.push(`<div class="legend-row"><div class="legend-dot" style="background:#1a2540;border:1px solid #1e293b;"></div><span class="legend-name" style="color:#4b6175;">Untracked</span><span class="legend-time" style="color:#475569;">${fmtHM(untracked)}</span></div>`);
-  legendEl.innerHTML=legendItems.join('');
-  document.getElementById('chart-time').textContent=`${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+  legendEl.innerHTML=[
+    ...entries.map(([act,secs])=>{
+      const isLive=activeActivity[u]&&activeActivity[u].activity===act;
+      return `<div class="legend-row"><div class="legend-dot" style="background:${actColor(act)};"></div><span class="legend-name">${escH(act)}${isLive?' <span style="color:#34d399;font-size:8px;"> ●</span>':''}</span><span class="legend-time">${fmtHM(secs)}</span></div>`;
+    }),
+    untracked>0?`<div class="legend-row"><div class="legend-dot" style="background:#1a2540;border:1px solid #1e293b;"></div><span class="legend-name" style="color:#4b6175;">Untracked</span><span class="legend-time" style="color:#475569;">${fmtHM(untracked)}</span></div>`:''
+  ].join('');
+  document.getElementById('chart-time').textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
 }
 
 // ════════════════════════════════
 // MASTER TODOS
 // ════════════════════════════════
-async function fetchMasterTodos(){
-  const {data}=await _sb.from('app_state').select('*').in('key',['master_Vedant','master_Girlfriend']);
-  if(!data)return;
-  data.forEach(r=>{
-    const u=r.key.replace('master_','');
-    try{masterTodos[u]=JSON.parse(r.value)||[];}catch(e){masterTodos[u]=[];}
-  });
-  if(currentModalUser) renderModal(currentModalUser);
-}
-async function saveMasterTodos(u){ await _sb.from('app_state').upsert({key:`master_${u}`,value:JSON.stringify(masterTodos[u])},{onConflict:'key'}); }
+async function saveMasterTodos(u){ await setState(`master_${u}`, masterTodos[u]); }
 function addMasterTodo(){
   const inp=document.getElementById('modal-inp');
   const text=inp.value.trim(); if(!text)return;
   inp.value='';
-  masterTodos[currentModalUser].unshift({id:uid(),text,done:false,addedAt:new Date().toISOString()});
-  renderModal(currentModalUser); saveMasterTodos(currentModalUser);
+  const u=currentModalUser;
+  masterTodos[u].unshift({id:uid(),text,done:false,addedAt:new Date().toISOString()});
+  renderModal(u); saveMasterTodos(u);
 }
-function toggleMasterTodo(u,id){ const t=masterTodos[u].find(x=>x.id===id); if(t)t.done=!t.done; renderModal(u); saveMasterTodos(u); }
+function toggleMasterTodo(u,id){
+  const t=masterTodos[u].find(x=>x.id===id); if(t)t.done=!t.done;
+  renderModal(u); saveMasterTodos(u);
+}
 function deleteMasterTodo(u,id){
   masterTodos[u]=masterTodos[u].filter(x=>x.id!==id);
   dailyTodos[u]=dailyTodos[u].filter(x=>x.masterRef!==id);
@@ -776,11 +763,9 @@ function renderModal(u){
   const todos=masterTodos[u];
   const done=todos.filter(t=>t.done).length;
   document.getElementById('modal-sub').textContent=`${done}/${todos.length} done`;
-  const isV=u==='Vedant';
-  const color=isV?'#2563eb':'#db2777';
+  const isV=u==='Vedant'; const color=isV?'#2563eb':'#db2777';
   if(!todos.length){body.innerHTML='<div class="empty-state" style="padding:20px 0;text-align:center;">No tasks yet — add one below</div>';return;}
-  const sorted=[...todos].sort((a,b)=>a.done-b.done);
-  body.innerHTML=sorted.map(t=>{
+  body.innerHTML=[...todos].sort((a,b)=>a.done-b.done).map(t=>{
     const inDaily=dailyTodos[u].some(x=>x.masterRef===t.id);
     return `<div class="master-item slide-up">
       <button onclick="toggleMasterTodo('${u}','${t.id}')" class="dt-check ${t.done?(isV?'done-v':'done-g'):''}" style="${t.done?`background:${color};border-color:${color}`:''}">
@@ -798,28 +783,25 @@ function renderModal(u){
 // ════════════════════════════════
 // DAILY TODOS
 // ════════════════════════════════
-async function fetchDailyTodos(){
-  const todayStart=new Date(); todayStart.setHours(0,0,0,0);
-  const {data}=await _sb.from('app_state').select('*').in('key',['daily_Vedant','daily_Girlfriend']);
-  if(!data)return;
-  data.forEach(r=>{
-    const u=r.key.replace('daily_','');
-    try{dailyTodos[u]=(JSON.parse(r.value)||[]).filter(t=>new Date(t.addedAt)>=todayStart);}
-    catch(e){dailyTodos[u]=[];}
-    renderDaily(u);
-  });
+async function saveDailyTodos(u){ await setState(`daily_${u}`, dailyTodos[u]); }
+function toggleDailyTodo(u,id){
+  const t=dailyTodos[u].find(x=>x.id===id); if(t)t.done=!t.done;
+  renderDaily(u); saveDailyTodos(u);
 }
-async function saveDailyTodos(u){ await _sb.from('app_state').upsert({key:`daily_${u}`,value:JSON.stringify(dailyTodos[u])},{onConflict:'key'}); }
-function toggleDailyTodo(u,id){ const t=dailyTodos[u].find(x=>x.id===id); if(t)t.done=!t.done; renderDaily(u); saveDailyTodos(u); }
-function deleteDailyTodo(u,id){ dailyTodos[u]=dailyTodos[u].filter(x=>x.id!==id); renderDaily(u); saveDailyTodos(u); renderModal(u); }
+function deleteDailyTodo(u,id){
+  dailyTodos[u]=dailyTodos[u].filter(x=>x.id!==id);
+  renderDaily(u); saveDailyTodos(u);
+  if(currentModalUser===u) renderModal(u);
+}
 function renderDaily(u){
   const c=document.getElementById(`daily-${u}`);
   const isV=u==='Vedant'; const color=isV?'#2563eb':'#db2777';
   if(!dailyTodos[u].length){c.innerHTML='<div class="empty-state">No tasks added yet</div>';return;}
-  const sorted=[...dailyTodos[u]].sort((a,b)=>a.done-b.done);
-  c.innerHTML=sorted.map(t=>`
+  c.innerHTML=[...dailyTodos[u]].sort((a,b)=>a.done-b.done).map(t=>`
     <div class="dt-item">
-      <button class="dt-check ${t.done?(isV?'done-v':'done-g'):''}" style="${t.done?`background:${color};border-color:${color}`:''}" onclick="toggleDailyTodo('${u}','${t.id}')">
+      <button class="dt-check ${t.done?(isV?'done-v':'done-g'):''}"
+        style="${t.done?`background:${color};border-color:${color}`:''}"
+        onclick="toggleDailyTodo('${u}','${t.id}')">
         ${t.done?`<span style="color:#fff;font-size:8px;">✓</span>`:''}
       </button>
       <span class="dt-label ${t.done?'done':''}">${escH(t.text)}</span>
@@ -841,7 +823,10 @@ function openModal(u){
   document.body.style.overflow='hidden';
   setTimeout(()=>document.getElementById('modal-inp').focus(),300);
 }
-function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); document.body.style.overflow=''; currentModalUser=null; }
+function closeModal(){
+  document.getElementById('modal-overlay').classList.remove('open');
+  document.body.style.overflow=''; currentModalUser=null;
+}
 function handleOverlayClick(e){ if(e.target===document.getElementById('modal-overlay')) closeModal(); }
 document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 
@@ -867,26 +852,66 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 })();
 
 // ════════════════════════════════
-// BOOT + UNIFIED 10s POLL
+// REALTIME SUBSCRIPTIONS — instant cross-device sync
+// ════════════════════════════════
+function setupRealtime(){
+  // Subscribe to study_sessions table changes
+  _sb.channel('sessions-channel')
+    .on('postgres_changes',
+      { event:'*', schema:'public', table:'study_sessions' },
+      payload=>{
+        if(payload.new) applySessionRow(payload.new);
+      })
+    .subscribe();
+
+  // Subscribe to app_state table changes — covers everything else
+  _sb.channel('appstate-channel')
+    .on('postgres_changes',
+      { event:'*', schema:'public', table:'app_state' },
+      payload=>{
+        const row = payload.new || payload.old;
+        if(row && row.key) applyAppStateRow(row.key, row.value);
+      })
+    .subscribe(status=>{
+      if(status==='SUBSCRIBED') console.log('✅ Realtime connected');
+    });
+}
+
+// ════════════════════════════════
+// BOOT — fetch everything once, then Realtime takes over
 // ════════════════════════════════
 async function init(){
+  // 1. Sessions
   await fetchSessions();
-  await fetchActivityState();   // restores activeActivity + renders rows
-  await fetchActivityLog();
-  await fetchMasterTodos();
-  await fetchDailyTodos();
-  ['Vedant','Girlfriend'].forEach(renderPie);
-}
-init();
 
-setInterval(async()=>{
-  await fetchSessions();
-  await fetchActivityState();   // ← this is what makes "now doing" live on all devices
-  await fetchActivityLog();
-  await fetchMasterTodos();
-  await fetchDailyTodos();
+  // 2. All app_state keys at once
+  const keys = [
+    'activeact_Vedant','activeact_Girlfriend',
+    'actlog_Vedant','actlog_Girlfriend',
+    'daily_Vedant','daily_Girlfriend',
+    'master_Vedant','master_Girlfriend'
+  ];
+  const { data: stateRows } = await _sb.from('app_state').select('key,value').in('key', keys);
+  if(stateRows){
+    stateRows.forEach(r => applyAppStateRow(r.key, r.value));
+  }
+
+  // 3. Wire up Realtime — all subsequent changes arrive via subscriptions
+  setupRealtime();
+
+  // 4. Render pies with initial data
   ['Vedant','Girlfriend'].forEach(renderPie);
-},10000);
+
+  // 5. Light fallback poll every 30s in case Realtime drops (websocket issues, etc.)
+  setInterval(async()=>{
+    const { data } = await _sb.from('app_state').select('key,value').in('key', keys);
+    if(data) data.forEach(r => applyAppStateRow(r.key, r.value));
+    await fetchSessions();
+    ['Vedant','Girlfriend'].forEach(renderPie);
+  }, 30000);
+}
+
+init();
 </script>
 </body>
 </html>
