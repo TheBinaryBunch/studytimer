@@ -11,406 +11,346 @@
 *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent;}
 body{font-family:'Inter',sans-serif;background:#030712;color:#f1f5f9;min-height:100dvh;padding:16px;}
 .mono{font-family:'JetBrains Mono',monospace;}
-
-/* ── scrollbar ── */
 ::-webkit-scrollbar{width:3px;}
 ::-webkit-scrollbar-thumb{background:rgba(148,163,184,.15);border-radius:2px;}
 
 /* ── layout ── */
 .page{max-width:700px;margin:0 auto;}
-.card{background:#0f172a;border:1px solid #1e293b;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.4);}
-.card-header{padding:16px 18px;border-bottom:1px solid #1e293b;display:flex;align-items:center;justify-content:space-between;}
-.section{padding:14px 18px;border-bottom:1px solid #0f172a;}
+.card{background:#0f172a;border:1px solid #1e293b;border-radius:20px;overflow:hidden;margin-bottom:12px;}
+.section{padding:14px 18px;border-bottom:1px solid #1e293b;}
 .section:last-child{border-bottom:none;}
 
 /* ── typography ── */
-.label{font-size:9.5px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:rgba(148,163,184,.45);}
-.user-name-v{font-size:18px;font-weight:800;color:#60a5fa;}
-.user-name-g{font-size:18px;font-weight:800;color:#f472b6;}
+.label{font-size:9px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:rgba(148,163,184,.6);}
 
-/* ── status ── */
-.status{font-size:10px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#475569;margin-top:2px;}
-.status.live{color:#34d399;animation:pulse 2s infinite;}
-@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.5;}}
+/* ── card header ── */
+.card-header{padding:16px 18px 14px;display:flex;align-items:flex-start;justify-content:space-between;gap:12px;}
+.user-name-v{font-size:17px;font-weight:800;color:#60a5fa;line-height:1;}
+.user-name-g{font-size:17px;font-weight:800;color:#f472b6;line-height:1;}
+.header-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
+.study-timer{font-size:26px;font-weight:700;letter-spacing:.04em;color:#e2e8f0;font-family:'JetBrains Mono',monospace;line-height:1;}
 
-/* ── timer ── */
-.timer{font-size:28px;font-weight:700;letter-spacing:.05em;color:#e2e8f0;}
+/* ── status pill ── */
+.status-pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475569;margin-top:3px;}
+.status-pill.live{color:#34d399;}
+.status-dot{width:5px;height:5px;border-radius:50%;background:currentColor;flex-shrink:0;}
+.status-pill.live .status-dot{animation:pulse 1.8s infinite;}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.25;}}
 
-/* ── Now Doing ── */
-.nd-row{display:flex;gap:8px;align-items:stretch;}
-select,input[type=text]{
-  background:#1e293b;border:1px solid #334155;color:#e2e8f0;
-  border-radius:12px;padding:10px 14px;font-size:14px;font-family:'Inter',sans-serif;
-  outline:none;transition:border-color .15s;width:100%;
-  -webkit-appearance:none;appearance:none;
-}
-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6'%3E%3Cpath d='M0 0l5 6 5-6z' fill='%23475569'/%3E%3C/svg%3E");background-repeat:no-repeat;background-position:right 12px center;padding-right:32px;cursor:pointer;}
-select:focus,input[type=text]:focus{border-color:#6366f1;}
-input[type=text]::placeholder{color:#475569;}
+/* ── activity row — the live status ── */
+.activity-row{display:flex;align-items:center;gap:10px;padding:12px 18px;border-bottom:1px solid #1e293b;min-height:52px;}
+.activity-icon{font-size:20px;line-height:1;flex-shrink:0;}
+.activity-info{flex:1;min-width:0;}
+.activity-name{font-size:14px;font-weight:700;color:#e2e8f0;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.activity-name.empty{color:#475569;font-weight:500;font-size:13px;}
+.activity-elapsed{font-size:11px;font-weight:600;color:#475569;font-family:'JetBrains Mono',monospace;margin-top:2px;}
+.activity-elapsed.live{color:#34d399;}
+.activity-actions{display:flex;gap:6px;flex-shrink:0;}
 
-.btn{border:none;border-radius:12px;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;transition:all .15s;font-size:13px;padding:10px 16px;white-space:nowrap;}
-.btn-set-v{background:#1e293b;border:1px solid #334155;color:#94a3b8;}
-.btn-set-v:hover{background:#2563eb;border-color:#2563eb;color:#fff;}
-.btn-set-g{background:#1e293b;border:1px solid #334155;color:#94a3b8;}
-.btn-set-g:hover{background:#db2777;border-color:#db2777;color:#fff;}
-.btn-primary-v{background:#2563eb;color:#fff;width:100%;padding:12px;}
-.btn-primary-v:active{background:#1d4ed8;}
-.btn-primary-g{background:#db2777;color:#fff;width:100%;padding:12px;}
-.btn-primary-g:active{background:#be185d;}
-.btn-amber{background:#d97706;color:#fff;width:100%;padding:12px;}
-.btn-add-v{background:#2563eb;color:#fff;padding:10px 14px;}
-.btn-add-g{background:#db2777;color:#fff;padding:10px 14px;}
-.btn-sm{padding:6px 12px;font-size:12px;border-radius:9px;}
+/* ── quick-set row ── */
+.quick-set{padding:10px 18px 12px;border-bottom:1px solid #1e293b;}
+.quick-chips{display:flex;gap:6px;flex-wrap:wrap;}
+.chip{background:#111827;border:1px solid #2a3a50;border-radius:20px;padding:5px 11px;font-size:12px;font-weight:600;color:#7a90a8;cursor:pointer;transition:all .12s;white-space:nowrap;}
+.chip:hover{border-color:#3d5166;color:#b0c4d8;}
+.chip.chip-v:hover{background:rgba(37,99,235,.12);border-color:rgba(37,99,235,.4);color:#93c5fd;}
+.chip.chip-g:hover{background:rgba(219,39,119,.12);border-color:rgba(219,39,119,.4);color:#f9a8d4;}
+.chip.chip-active-v{background:rgba(37,99,235,.15);border-color:rgba(37,99,235,.5);color:#93c5fd;}
+.chip.chip-active-g{background:rgba(219,39,119,.15);border-color:rgba(219,39,119,.5);color:#f9a8d4;}
+.chip-custom{display:none;margin-top:8px;gap:6px;}
+.chip-custom.show{display:flex;}
 
-.nd-display{margin-top:8px;background:rgba(99,102,241,.1);border:1px solid rgba(99,102,241,.2);border-radius:12px;padding:9px 14px;display:flex;align-items:center;gap:8px;}
-.nd-display-g{background:rgba(244,114,182,.1);border-color:rgba(244,114,182,.2);}
-.nd-text{font-size:13px;font-weight:600;flex:1;}
-.nd-text-v{color:#a5b4fc;}
-.nd-text-g{color:#f9a8d4;}
-.nd-clear{background:none;border:none;color:#475569;cursor:pointer;font-size:14px;padding:0 2px;line-height:1;}
-.nd-clear:hover{color:#94a3b8;}
+/* ── btn ── */
+.btn{border:none;border-radius:10px;font-family:'Inter',sans-serif;font-weight:700;cursor:pointer;transition:all .15s;font-size:13px;white-space:nowrap;}
+.btn-study-v{background:#172033;border:1px solid #2563eb;color:#60a5fa;padding:6px 12px;font-size:12px;border-radius:12px;transition:all .15s;}
+.btn-study-v.active{background:#2563eb;border-color:#2563eb;color:#fff;}
+.btn-study-g{background:#1e1028;border:1px solid #db2777;color:#f472b6;padding:6px 12px;font-size:12px;border-radius:12px;transition:all .15s;}
+.btn-study-g.active{background:#db2777;border-color:#db2777;color:#fff;}
+.btn-icon{background:none;border:none;color:#64748b;cursor:pointer;font-size:13px;padding:4px;border-radius:6px;line-height:1;transition:color .12s;}
+.btn-icon:hover{color:#94a3b8;}
+.btn-add-v{background:#2563eb;color:#fff;padding:8px 14px;border-radius:9px;}
+.btn-add-g{background:#db2777;color:#fff;padding:8px 14px;border-radius:9px;}
+.btn-set{background:#1e293b;border:1px solid #475569;color:#cbd5e1;padding:8px 12px;border-radius:9px;}
 
-/* ── Daily todos on card ── */
-.daily-todo-item{display:flex;align-items:center;gap:8px;padding:7px 4px;border-radius:10px;}
-.daily-todo-item:hover{background:rgba(30,41,59,.6);}
-.daily-todo-item:hover .dt-del{opacity:1;}
-.dt-del{opacity:0;background:none;border:none;color:#475569;cursor:pointer;font-size:11px;transition:opacity .12s;padding:0 2px;}
+/* ── glow active ── */
+.card.active-v{border-color:rgba(52,211,153,.3);box-shadow:0 0 0 1px rgba(52,211,153,.1),0 4px 20px rgba(0,0,0,.4);}
+.card.active-g{border-color:rgba(52,211,153,.3);box-shadow:0 0 0 1px rgba(52,211,153,.1),0 4px 20px rgba(0,0,0,.4);}
+
+/* ── input ── */
+input[type=text]{background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:10px;padding:9px 13px;font-size:14px;font-family:'Inter',sans-serif;outline:none;transition:border-color .15s;width:100%;}
+input[type=text]:focus{border-color:#6366f1;}
+input[type=text]::placeholder{color:#4b6175;}
+
+/* ── Daily todos ── */
+.daily-section{padding:12px 18px;}
+.daily-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.dt-item{display:flex;align-items:center;gap:8px;padding:6px 2px;border-radius:8px;}
+.dt-item:hover .dt-del{opacity:1;}
+.dt-del{opacity:0;background:none;border:none;color:#64748b;cursor:pointer;font-size:11px;padding:0 2px;transition:opacity .12s;}
 .dt-del:hover{color:#f87171;}
-.dt-check{width:16px;height:16px;border-radius:5px;border:1.5px solid #475569;display:flex;align-items:center;justify-content:center;cursor:pointer;background:none;flex-shrink:0;transition:all .12s;}
+.dt-check{width:15px;height:15px;border-radius:4px;border:1.5px solid #475569;display:flex;align-items:center;justify-content:center;cursor:pointer;background:none;flex-shrink:0;transition:all .12s;}
 .dt-check.done-v{background:#2563eb;border-color:#2563eb;}
 .dt-check.done-g{background:#db2777;border-color:#db2777;}
 .dt-label{font-size:13px;color:#cbd5e1;flex:1;line-height:1.35;}
-.dt-label.done{text-decoration:line-through;color:#475569;}
-.empty-state{font-size:12px;color:#475569;font-style:italic;padding:4px;}
-
-/* ── Open Master button ── */
-.btn-master{display:flex;align-items:center;gap:6px;background:rgba(30,41,59,.8);border:1px solid #334155;border-radius:10px;padding:7px 12px;font-size:11px;font-weight:600;color:#64748b;cursor:pointer;transition:all .15s;letter-spacing:.04em;}
+.dt-label.done{text-decoration:line-through;color:#334155;}
+.empty-state{font-size:12px;color:#4b6175;font-style:italic;padding:2px 0;}
+.btn-master{display:inline-flex;align-items:center;gap:5px;background:none;border:1px solid #2a3a50;border-radius:8px;padding:5px 10px;font-size:10px;font-weight:600;color:#64748b;cursor:pointer;transition:all .12s;letter-spacing:.04em;}
 .btn-master:hover{border-color:#475569;color:#94a3b8;}
 
-/* ── Glow active card ── */
-.card.active-v{border-color:rgba(52,211,153,.35);box-shadow:0 0 0 1px rgba(52,211,153,.15),0 4px 24px rgba(52,211,153,.06);}
-.card.active-g{border-color:rgba(52,211,153,.35);box-shadow:0 0 0 1px rgba(52,211,153,.15),0 4px 24px rgba(52,211,153,.06);}
+/* ════ PIE CHARTS ════ */
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.pie-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:14px;display:flex;flex-direction:column;align-items:center;}
+.pie-name{font-size:11px;font-weight:700;letter-spacing:.06em;margin-bottom:10px;}
+.pie-wrap{position:relative;width:130px;height:130px;}
+.pie-wrap svg{width:130px;height:130px;}
+.pie-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
+.pie-pct{font-size:20px;font-weight:800;line-height:1;}
+.pie-pct-label{font-size:8px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#475569;margin-top:2px;}
+.pie-legend{margin-top:10px;width:100%;}
+.legend-row{display:flex;align-items:center;gap:5px;margin-bottom:3px;}
+.legend-dot{width:6px;height:6px;border-radius:2px;flex-shrink:0;}
+.legend-name{font-size:10px;color:#64748b;flex:1;}
+.legend-time{font-size:10px;font-weight:600;color:#64748b;font-family:'JetBrains Mono',monospace;}
 
-/* ════════════════ MODAL ════════════════ */
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:100;display:flex;align-items:flex-end;justify-content:center;padding:0;opacity:0;pointer-events:none;transition:opacity .2s;}
+/* ════ MODAL ════ */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
 .modal-overlay.open{opacity:1;pointer-events:all;}
 .modal{background:#0f172a;border:1px solid #1e293b;border-radius:24px 24px 0 0;width:100%;max-width:600px;max-height:88dvh;display:flex;flex-direction:column;transform:translateY(40px);transition:transform .25s cubic-bezier(.25,.8,.25,1);}
 .modal-overlay.open .modal{transform:translateY(0);}
-.modal-handle{width:40px;height:4px;background:#334155;border-radius:2px;margin:12px auto 4px;}
-.modal-header{padding:12px 18px 14px;border-bottom:1px solid #1e293b;display:flex;align-items:center;justify-content:space-between;}
-.modal-title{font-size:15px;font-weight:700;color:#e2e8f0;}
-.modal-close{background:none;border:none;color:#475569;cursor:pointer;font-size:20px;line-height:1;padding:2px 6px;border-radius:8px;}
-.modal-close:hover{color:#94a3b8;background:#1e293b;}
-.modal-body{flex:1;overflow-y:auto;padding:14px 18px;}
-.modal-footer{padding:14px 18px;border-top:1px solid #1e293b;}
-
-/* Master todo item */
-.master-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:12px;border:1px solid #1e293b;background:#0a1020;margin-bottom:6px;transition:border-color .12s;}
+.modal-handle{width:36px;height:4px;background:#1e293b;border-radius:2px;margin:10px auto 2px;}
+.modal-header{padding:10px 18px 12px;border-bottom:1px solid #1e293b;display:flex;align-items:center;justify-content:space-between;}
+.modal-title{font-size:14px;font-weight:700;color:#e2e8f0;}
+.modal-close{background:none;border:none;color:#334155;cursor:pointer;font-size:18px;line-height:1;padding:2px 6px;border-radius:6px;transition:color .12s;}
+.modal-close:hover{color:#64748b;}
+.modal-body{flex:1;overflow-y:auto;padding:12px 16px;}
+.modal-footer{padding:12px 16px;border-top:1px solid #1e293b;display:flex;gap:8px;}
+.modal-footer input{flex:1;}
+.master-item{display:flex;align-items:center;gap:8px;padding:9px 10px;border-radius:10px;border:1px solid #1e293b;margin-bottom:5px;transition:border-color .12s;}
 .master-item:hover{border-color:#334155;}
 .master-item-text{flex:1;font-size:13px;color:#cbd5e1;line-height:1.4;}
-.master-item-text.done{text-decoration:line-through;color:#475569;}
-.master-add-btn{background:none;border:1px solid #334155;border-radius:8px;padding:4px 9px;font-size:11px;font-weight:700;cursor:pointer;transition:all .12s;white-space:nowrap;}
-.master-add-btn.in-v{background:rgba(37,99,235,.2);border-color:rgba(37,99,235,.4);color:#93c5fd;}
-.master-add-btn.in-g{background:rgba(219,39,119,.2);border-color:rgba(219,39,119,.4);color:#f9a8d4;}
-.master-add-btn.add-v{color:#64748b;border-color:#334155;}
-.master-add-btn.add-v:hover{background:rgba(37,99,235,.15);border-color:#2563eb;color:#93c5fd;}
-.master-add-btn.add-g{color:#64748b;border-color:#334155;}
-.master-add-btn.add-g:hover{background:rgba(219,39,119,.15);border-color:#db2777;color:#f9a8d4;}
-.master-del{background:none;border:none;color:#334155;cursor:pointer;font-size:13px;padding:2px 4px;border-radius:6px;transition:color .12s;}
+.master-item-text.done{text-decoration:line-through;color:#334155;}
+.master-add-btn{background:none;border:1px solid #1e293b;border-radius:7px;padding:3px 8px;font-size:10px;font-weight:700;cursor:pointer;transition:all .12s;white-space:nowrap;color:#475569;}
+.master-add-btn.in-v{background:rgba(37,99,235,.15);border-color:rgba(37,99,235,.3);color:#93c5fd;}
+.master-add-btn.in-g{background:rgba(219,39,119,.15);border-color:rgba(219,39,119,.3);color:#f9a8d4;}
+.master-add-btn:hover{border-color:#334155;color:#64748b;}
+.master-del{background:none;border:none;color:#475569;cursor:pointer;font-size:12px;padding:2px 4px;border-radius:5px;transition:color .12s;}
 .master-del:hover{color:#f87171;}
 
-/* ════════════════ PIE CHARTS ════════════════ */
-.charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
-.pie-card{background:#0f172a;border:1px solid #1e293b;border-radius:18px;padding:16px;text-align:center;}
-.pie-wrap{position:relative;width:140px;height:140px;margin:12px auto 14px;}
-.pie-wrap svg{width:140px;height:140px;}
-.pie-center{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;}
-.pie-pct{font-size:22px;font-weight:800;line-height:1;}
-.pie-pct-label{font-size:9px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#475569;margin-top:2px;}
-.legend-dot{width:8px;height:8px;border-radius:2px;flex-shrink:0;}
-.legend-row{display:flex;align-items:center;gap:6px;margin-bottom:4px;}
-.legend-name{font-size:11px;color:#64748b;flex:1;text-align:left;}
-.legend-time{font-size:11px;font-weight:600;color:#475569;font-family:'JetBrains Mono',monospace;}
+/* ════ UCEED COUNTDOWN ════ */
+.uceed-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:16px 18px;margin-bottom:20px;}
+.uceed-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
+.uceed-title{font-size:14px;font-weight:800;background:linear-gradient(90deg,#f59e0b,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.uceed-days{font-size:36px;font-weight:800;font-family:'JetBrains Mono',monospace;background:linear-gradient(90deg,#f59e0b,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.uceed-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:10px;}
+.uceed-cell{background:#070e1a;border:1px solid #1e293b;border-radius:10px;padding:8px 10px;}
+.uceed-val{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#e2e8f0;}
+.uceed-lbl{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4b6175;margin-top:1px;}
 
 /* ── animations ── */
 @keyframes slideUp{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
-.slide-up{animation:slideUp .18s ease;}
+.slide-up{animation:slideUp .15s ease;}
 
-/* ── mobile tap targets ── */
+/* ── mobile ── */
 @media(max-width:480px){
-  body{padding:12px;}
-  .timer{font-size:24px;}
-  .charts-grid{grid-template-columns:1fr 1fr;gap:8px;}
-  .pie-wrap{width:120px;height:120px;}
-  .pie-wrap svg{width:120px;height:120px;}
-  .pie-pct{font-size:18px;}
+  body{padding:10px;}
+  .study-timer{font-size:22px;}
+  .pie-wrap{width:110px;height:110px;}
+  .pie-wrap svg{width:110px;height:110px;}
+  .pie-pct{font-size:17px;}
 }
 
-/* ── desktop enhancements ── */
+/* ── desktop ── */
 @media(min-width:768px){
-  body{padding:32px 24px;background:#020810;}
-  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 80% 60% at 20% 10%,rgba(37,99,235,.07) 0%,transparent 60%),radial-gradient(ellipse 60% 50% at 80% 90%,rgba(219,39,119,.06) 0%,transparent 55%);pointer-events:none;z-index:0;}
-  .page{max-width:1100px;position:relative;z-index:1;}
-
-  /* header */
-  .desktop-header h1{font-size:28px;}
-
-  /* two-col user cards */
-  .user-cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px;margin-bottom:16px;}
-  .user-cards-grid .card{margin-bottom:0 !important;}
-
-  /* card header bigger timer */
-  .card-header{padding:20px 22px;}
-  .timer{font-size:34px;}
-  .user-name-v,.user-name-g{font-size:20px;}
-  .section{padding:16px 22px;}
-
-  /* bigger pie charts */
-  .charts-grid{gap:16px;}
-  .pie-card{padding:20px 18px;}
-  .pie-wrap{width:170px;height:170px;}
-  .pie-wrap svg{width:170px;height:170px;}
-  .pie-pct{font-size:26px;}
-  .legend-name{font-size:12px;}
-  .legend-time{font-size:12px;}
-
-  /* card glow on hover */
-  .card{transition:box-shadow .2s,border-color .2s;}
-  .card:hover{border-color:#334155;box-shadow:0 8px 40px rgba(0,0,0,.5);}
-
-  /* modal centered on desktop */
+  body{padding:28px 24px;}
+  body::before{content:'';position:fixed;inset:0;background:radial-gradient(ellipse 70% 50% at 15% 10%,rgba(37,99,235,.06) 0%,transparent 60%),radial-gradient(ellipse 50% 40% at 85% 90%,rgba(219,39,119,.05) 0%,transparent 55%);pointer-events:none;z-index:0;}
+  .page{max-width:1080px;position:relative;z-index:1;}
+  .user-cards-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px;}
+  .user-cards-grid .card{margin-bottom:0;}
+  .charts-row{margin-bottom:16px;}
+  .pie-wrap{width:150px;height:150px;}
+  .pie-wrap svg{width:150px;height:150px;}
+  .pie-pct{font-size:24px;}
+  .card{transition:border-color .2s;}
+  .card:hover{border-color:#1e293b;}
   .modal-overlay{align-items:center;}
-  .modal{border-radius:20px;max-width:520px;max-height:80dvh;}
+  .modal{border-radius:20px;max-width:500px;max-height:78dvh;}
   .modal-handle{display:none;}
-
-  /* countdown card */
-  .uceed-card-inner{display:grid;grid-template-columns:1fr auto;gap:24px;align-items:start;}
 }
 </style>
 </head>
 <body>
 <div class="page">
 
-  <!-- ── HEADER ── -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:20px;">
-    <h1 style="font-size:22px;font-weight:800;background:linear-gradient(90deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Our Study Space 🌌</h1>
-    <button class="btn" style="background:#0f172a;border:1px solid #1e293b;color:#475569;font-size:11px;padding:8px 12px;" onclick="resetDayCounters()">🔄 Reset Day</button>
+  <!-- header -->
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+    <h1 style="font-size:20px;font-weight:800;background:linear-gradient(90deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.01em;">Our Study Space 🌌</h1>
+    <button class="btn" style="background:#0f172a;border:1px solid #334155;color:#64748b;font-size:10px;padding:6px 10px;border-radius:8px;letter-spacing:.06em;font-weight:700;text-transform:uppercase;" onclick="resetDayCounters()">Reset Day</button>
   </div>
 
-  <!-- ════ USER CARDS GRID ════ -->
-  <div class="user-cards-grid" style="margin-bottom:16px;">
+  <!-- ════ USER CARDS ════ -->
+  <div class="user-cards-grid" style="margin-bottom:14px;">
 
-  <!-- ════ VEDANT CARD ════ -->
-  <div id="card-Vedant" class="card" style="margin-bottom:12px;">
+  <!-- NIGHTFURY (blue / Vedant) -->
+  <div id="card-Vedant" class="card">
     <div class="card-header">
       <div>
         <div class="user-name-v">Nightfury</div>
-        <div id="status-Vedant" class="status">Offline</div>
+        <div id="status-Vedant" class="status-pill" style="margin-top:4px;">
+          <span class="status-dot"></span><span id="status-txt-Vedant">Offline</span>
+        </div>
       </div>
-      <div id="time-Vedant" class="timer mono">00:00:00</div>
-    </div>
-
-    <!-- Now Doing -->
-    <div class="section">
-      <div class="label" style="margin-bottom:8px;">Now Doing</div>
-      <div class="nd-row">
-        <select id="nd-sel-Vedant" onchange="handleNdPreset('Vedant')" style="flex:1;">
-          <option value="">— Quick pick —</option>
-          <option value="📚 Studying">📚 Studying</option>
-          <option value="🏫 In School">🏫 In School</option>
-          <option value="🏋️ Exercise">🏋️ Exercise</option>
-          <option value="🎮 Gaming">🎮 Gaming</option>
-          <option value="😴 Sleeping">😴 Sleeping</option>
-          <option value="🍽️ Eating">🍽️ Eating</option>
-          <option value="😌 Chilling">😌 Chilling</option>
-          <option value="custom">✏️ Custom…</option>
-        </select>
-        <button class="btn btn-set-v" onclick="saveNowDoing('Vedant')">Set</button>
-      </div>
-      <input id="nd-inp-Vedant" type="text" placeholder="What exactly?" maxlength="60" style="display:none;margin-top:8px;" onkeydown="if(event.key==='Enter')saveNowDoing('Vedant')">
-      <div id="nd-disp-Vedant" class="nd-display" style="display:none;">
-        <span id="nd-txt-Vedant" class="nd-text nd-text-v"></span>
-        <button class="nd-clear" onclick="clearNowDoing('Vedant')">✕</button>
+      <div class="header-right">
+        <div id="time-Vedant" class="study-timer">00:00:00</div>
       </div>
     </div>
 
-    <!-- Daily To-Do -->
-    <div class="section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div class="label">Today's Tasks</div>
+    <!-- Live activity row -->
+    <div class="activity-row" id="arow-Vedant">
+      <div class="activity-icon" id="aicon-Vedant">💤</div>
+      <div class="activity-info">
+        <div class="activity-name empty" id="aname-Vedant">Nothing set</div>
+        <div class="activity-elapsed" id="aelapsed-Vedant"></div>
+      </div>
+      <div class="activity-actions">
+        <button class="btn-icon" id="aclear-Vedant" onclick="clearNowDoing('Vedant')" style="display:none;" title="Clear">✕</button>
+      </div>
+    </div>
+
+    <!-- Quick-set chips -->
+    <div class="quick-set">
+      <div class="quick-chips" id="chips-Vedant">
+        <span class="chip chip-v" onclick="setActivity('Vedant','🏫 In School')">🏫 School</span>
+        <span class="chip chip-v" onclick="setActivity('Vedant','🏋️ Exercise')">🏋️ Exercise</span>
+        <span class="chip chip-v" onclick="setActivity('Vedant','🎮 Gaming')">🎮 Gaming</span>
+        <span class="chip chip-v" onclick="setActivity('Vedant','😴 Sleeping')">😴 Sleep</span>
+        <span class="chip chip-v" onclick="setActivity('Vedant','🍽️ Eating')">🍽️ Eat</span>
+        <span class="chip chip-v" onclick="setActivity('Vedant','😌 Chilling')">😌 Chill</span>
+        <span class="chip chip-v" onclick="showCustom('Vedant')">✏️</span>
+      </div>
+      <div class="chip-custom" id="custom-Vedant">
+        <input type="text" id="custom-inp-Vedant" placeholder="Custom activity…" maxlength="60" onkeydown="if(event.key==='Enter')submitCustom('Vedant')">
+        <button class="btn btn-set" onclick="submitCustom('Vedant')">Set</button>
+      </div>
+    </div>
+
+    <!-- Daily tasks -->
+    <div class="daily-section">
+      <div class="daily-header">
+        <span class="label">Today's tasks</span>
         <button class="btn-master" onclick="openModal('Vedant')">
-          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           Master List
         </button>
       </div>
-      <div id="daily-Vedant" style="min-height:32px;">
-        <div class="empty-state">No tasks for today yet</div>
-      </div>
+      <div id="daily-Vedant"><div class="empty-state">No tasks added yet</div></div>
     </div>
-
-    <div class="section" style="padding:12px 18px;">
-      <button id="btn-Vedant" class="btn btn-primary-v" onclick="handleToggle('Vedant')">Start Studying</button>
+    <div style="padding:12px 14px;">
+      <button id="btn-Vedant" class="btn btn-study-v" style="width:100%;padding:13px;font-size:14px;border-radius:12px;" onclick="handleToggle('Vedant')">▶ Start Studying</button>
     </div>
   </div>
 
-  <!-- ════ HARSHAL CARD ════ -->
-  <div id="card-Girlfriend" class="card" style="margin-bottom:0;">
+  <!-- LIGHTFURY (pink / Girlfriend) -->
+  <div id="card-Girlfriend" class="card">
     <div class="card-header">
       <div>
         <div class="user-name-g">Lightfury</div>
-        <div id="status-Girlfriend" class="status">Offline</div>
+        <div id="status-Girlfriend" class="status-pill" style="margin-top:4px;">
+          <span class="status-dot"></span><span id="status-txt-Girlfriend">Offline</span>
+        </div>
       </div>
-      <div id="time-Girlfriend" class="timer mono">00:00:00</div>
-    </div>
-
-    <!-- Now Doing -->
-    <div class="section">
-      <div class="label" style="margin-bottom:8px;">Now Doing</div>
-      <div class="nd-row">
-        <select id="nd-sel-Girlfriend" onchange="handleNdPreset('Girlfriend')" style="flex:1;">
-          <option value="">— Quick pick —</option>
-          <option value="📚 Studying">📚 Studying</option>
-          <option value="🏫 In School">🏫 In School</option>
-          <option value="🏋️ Exercise">🏋️ Exercise</option>
-          <option value="🎮 Gaming">🎮 Gaming</option>
-          <option value="😴 Sleeping">😴 Sleeping</option>
-          <option value="🍽️ Eating">🍽️ Eating</option>
-          <option value="😌 Chilling">😌 Chilling</option>
-          <option value="custom">✏️ Custom…</option>
-        </select>
-        <button class="btn btn-set-g" onclick="saveNowDoing('Girlfriend')">Set</button>
-      </div>
-      <input id="nd-inp-Girlfriend" type="text" placeholder="What exactly?" maxlength="60" style="display:none;margin-top:8px;" onkeydown="if(event.key==='Enter')saveNowDoing('Girlfriend')">
-      <div id="nd-disp-Girlfriend" class="nd-display nd-display-g" style="display:none;">
-        <span id="nd-txt-Girlfriend" class="nd-text nd-text-g"></span>
-        <button class="nd-clear" onclick="clearNowDoing('Girlfriend')">✕</button>
+      <div class="header-right">
+        <div id="time-Girlfriend" class="study-timer">00:00:00</div>
       </div>
     </div>
 
-    <!-- Daily To-Do -->
-    <div class="section">
-      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;">
-        <div class="label">Today's Tasks</div>
+    <!-- Live activity row -->
+    <div class="activity-row" id="arow-Girlfriend">
+      <div class="activity-icon" id="aicon-Girlfriend">💤</div>
+      <div class="activity-info">
+        <div class="activity-name empty" id="aname-Girlfriend">Nothing set</div>
+        <div class="activity-elapsed" id="aelapsed-Girlfriend"></div>
+      </div>
+      <div class="activity-actions">
+        <button class="btn-icon" id="aclear-Girlfriend" onclick="clearNowDoing('Girlfriend')" style="display:none;" title="Clear">✕</button>
+      </div>
+    </div>
+
+    <!-- Quick-set chips -->
+    <div class="quick-set">
+      <div class="quick-chips" id="chips-Girlfriend">
+        <span class="chip chip-g" onclick="setActivity('Girlfriend','🏫 In School')">🏫 School</span>
+        <span class="chip chip-g" onclick="setActivity('Girlfriend','🏋️ Exercise')">🏋️ Exercise</span>
+        <span class="chip chip-g" onclick="setActivity('Girlfriend','🎮 Gaming')">🎮 Gaming</span>
+        <span class="chip chip-g" onclick="setActivity('Girlfriend','😴 Sleeping')">😴 Sleep</span>
+        <span class="chip chip-g" onclick="setActivity('Girlfriend','🍽️ Eating')">🍽️ Eat</span>
+        <span class="chip chip-g" onclick="setActivity('Girlfriend','😌 Chilling')">😌 Chill</span>
+        <span class="chip chip-g" onclick="showCustom('Girlfriend')">✏️</span>
+      </div>
+      <div class="chip-custom" id="custom-Girlfriend">
+        <input type="text" id="custom-inp-Girlfriend" placeholder="Custom activity…" maxlength="60" onkeydown="if(event.key==='Enter')submitCustom('Girlfriend')">
+        <button class="btn btn-set" onclick="submitCustom('Girlfriend')">Set</button>
+      </div>
+    </div>
+
+    <!-- Daily tasks -->
+    <div class="daily-section">
+      <div class="daily-header">
+        <span class="label">Today's tasks</span>
         <button class="btn-master" onclick="openModal('Girlfriend')">
-          <svg width="12" height="12" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
+          <svg width="10" height="10" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"/></svg>
           Master List
         </button>
       </div>
-      <div id="daily-Girlfriend" style="min-height:32px;">
-        <div class="empty-state">No tasks for today yet</div>
-      </div>
+      <div id="daily-Girlfriend"><div class="empty-state">No tasks added yet</div></div>
     </div>
-
-    <div class="section" style="padding:12px 18px;">
-      <button id="btn-Girlfriend" class="btn btn-primary-g" onclick="handleToggle('Girlfriend')">Start Studying</button>
+    <div style="padding:12px 14px;">
+      <button id="btn-Girlfriend" class="btn btn-study-g" style="width:100%;padding:13px;font-size:14px;border-radius:12px;" onclick="handleToggle('Girlfriend')">▶ Start Studying</button>
     </div>
   </div>
 
   </div><!-- /user-cards-grid -->
 
   <!-- ════ PIE CHARTS ════ -->
-  <div style="margin-bottom:8px;display:flex;align-items:center;justify-content:space-between;padding:0 2px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;padding:0 2px;">
     <div class="label">Today's Breakdown</div>
-    <div id="chart-time" style="font-size:10px;color:#334155;"></div>
+    <div id="chart-time" style="font-size:9px;color:#334155;"></div>
   </div>
-  <div class="charts-grid" style="margin-bottom:24px;">
+  <div class="charts-row">
     <div class="pie-card">
-      <div style="font-size:12px;font-weight:700;color:#60a5fa;margin-bottom:2px;">Nightfury</div>
+      <div class="pie-name" style="color:#60a5fa;">Nightfury</div>
       <div class="pie-wrap">
         <svg id="pie-svg-Vedant" viewBox="0 0 140 140"></svg>
         <div class="pie-center">
-          <div id="pie-pct-Vedant" class="pie-pct" style="color:#60a5fa;">—</div>
+          <div id="pie-pct-Vedant" class="pie-pct" style="color:#60a5fa;">0%</div>
           <div class="pie-pct-label">tracked</div>
         </div>
       </div>
-      <div id="pie-legend-Vedant"></div>
+      <div class="pie-legend" id="pie-legend-Vedant"></div>
     </div>
     <div class="pie-card">
-      <div style="font-size:12px;font-weight:700;color:#f472b6;margin-bottom:2px;">Lightfury</div>
+      <div class="pie-name" style="color:#f472b6;">Lightfury</div>
       <div class="pie-wrap">
         <svg id="pie-svg-Girlfriend" viewBox="0 0 140 140"></svg>
         <div class="pie-center">
-          <div id="pie-pct-Girlfriend" class="pie-pct" style="color:#f472b6;">—</div>
+          <div id="pie-pct-Girlfriend" class="pie-pct" style="color:#f472b6;">0%</div>
           <div class="pie-pct-label">tracked</div>
         </div>
       </div>
-      <div id="pie-legend-Girlfriend"></div>
+      <div class="pie-legend" id="pie-legend-Girlfriend"></div>
     </div>
   </div>
 
   <!-- ════ UCEED 2027 COUNTDOWN ════ -->
-  <div class="card" style="margin-bottom:24px;">
-    <div class="card-header">
-      <div>
-        <div style="font-size:16px;font-weight:800;background:linear-gradient(90deg,#f59e0b,#f472b6,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🎯 UCEED 2027</div>
-        <div class="label" style="margin-top:2px;">Countdown to exam day</div>
-      </div>
-      <div style="font-size:11px;color:#475569;font-weight:600;">Jan 2027</div>
+  <div class="uceed-card">
+    <div class="uceed-header">
+      <div class="uceed-title">🎯 UCEED 2027</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4b6175;">Jan 18, 2027</div>
     </div>
-    <div class="section">
-      <table id="uceed-countdown-table" style="width:100%;border-collapse:collapse;">
-        <thead>
-          <tr>
-            <th style="text-align:left;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(148,163,184,.45);padding:6px 4px 10px;">Metric</th>
-            <th style="text-align:right;font-size:9.5px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:rgba(148,163,184,.45);padding:6px 4px 10px;">Value</th>
-          </tr>
-        </thead>
-        <tbody id="uceed-tbody">
-        </tbody>
-      </table>
-      <div style="margin-top:14px;background:linear-gradient(135deg,rgba(245,158,11,.08),rgba(167,139,250,.08));border:1px solid rgba(245,158,11,.18);border-radius:12px;padding:12px 14px;display:flex;align-items:center;gap:10px;">
-        <div style="font-size:28px;line-height:1;">⏳</div>
-        <div>
-          <div id="uceed-days-big" style="font-size:32px;font-weight:800;font-family:'JetBrains Mono',monospace;background:linear-gradient(90deg,#f59e0b,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1.1;">—</div>
-          <div style="font-size:11px;color:#64748b;font-weight:600;margin-top:2px;">days till UCEED 2027</div>
-        </div>
-      </div>
+    <div style="display:flex;align-items:baseline;gap:8px;">
+      <div id="uceed-days" class="uceed-days">—</div>
+      <div style="font-size:12px;color:#475569;font-weight:600;">days remaining</div>
     </div>
+    <div class="uceed-grid" id="uceed-grid"></div>
   </div>
-
-  <script>
-  (function(){
-    // UCEED 2027 is typically held in mid-January; using Jan 18, 2027
-    const UCEED_DATE = new Date('2027-01-18T00:00:00');
-    function updateCountdown(){
-      const now = new Date();
-      const diffMs = UCEED_DATE - now;
-      if(diffMs <= 0){
-        document.getElementById('uceed-days-big').textContent = '0';
-        document.getElementById('uceed-tbody').innerHTML = '<tr><td colspan="2" style="text-align:center;color:#34d399;font-size:13px;padding:8px;">Exam day is here! 🚀</td></tr>';
-        return;
-      }
-      const totalDays   = Math.ceil(diffMs / 86400000);
-      const weeks       = Math.floor(totalDays / 7);
-      const months      = Math.floor(totalDays / 30.44);
-      const hours       = Math.floor(diffMs / 3600000);
-      const pctGone     = Math.max(0, Math.min(100, Math.round(((new Date('2025-01-01') - new Date('2025-01-01')) / (UCEED_DATE - new Date('2025-01-01'))) * 100)));
-
-      // Days left in current month
-      const endOfMonth  = new Date(now.getFullYear(), now.getMonth()+1, 0);
-      const daysInMonth = Math.ceil((endOfMonth - now) / 86400000);
-
-      document.getElementById('uceed-days-big').textContent = totalDays.toLocaleString();
-
-      const rows = [
-        ['📅 Days remaining',   `${totalDays.toLocaleString()} days`],
-        ['📆 Weeks remaining',  `${weeks.toLocaleString()} weeks`],
-        ['🗓️ Months remaining', `~${months} months`],
-        ['⏱️ Hours remaining',  `${hours.toLocaleString()} hrs`],
-        ['📍 Days left in month', `${daysInMonth} days`],
-        ['🎯 Exam date (est.)', 'Jan 18, 2027'],
-      ];
-
-      document.getElementById('uceed-tbody').innerHTML = rows.map(([label, val], i) => `
-        <tr style="border-top:1px solid #1e293b;">
-          <td style="padding:10px 4px;font-size:13px;color:#94a3b8;">${label}</td>
-          <td style="padding:10px 4px;font-size:13px;font-weight:700;color:#e2e8f0;text-align:right;font-family:'JetBrains Mono',monospace;">${val}</td>
-        </tr>`).join('');
-    }
-    updateCountdown();
-    setInterval(updateCountdown, 60000);
-  })();
-  </script>
 
 </div><!-- /page -->
 
@@ -420,19 +360,15 @@ input[type=text]::placeholder{color:#475569;}
     <div class="modal-handle"></div>
     <div class="modal-header">
       <div>
-        <div id="modal-title" class="modal-title">Master To-Do</div>
-        <div id="modal-sub" style="font-size:11px;color:#475569;margin-top:2px;"></div>
+        <div id="modal-title" class="modal-title">Master List</div>
+        <div id="modal-sub" style="font-size:10px;color:#334155;margin-top:2px;"></div>
       </div>
       <button class="modal-close" onclick="closeModal()">✕</button>
     </div>
-    <div class="modal-body" id="modal-body">
-      <div class="empty-state">No tasks yet</div>
-    </div>
+    <div class="modal-body" id="modal-body"><div class="empty-state">No tasks yet</div></div>
     <div class="modal-footer">
-      <div style="display:flex;gap:8px;">
-        <input type="text" id="modal-inp" placeholder="Add a lifetime task…" maxlength="100" onkeydown="if(event.key==='Enter')addMasterTodo()">
-        <button class="btn btn-add-v" id="modal-add-btn" onclick="addMasterTodo()" style="flex-shrink:0;">+ Add</button>
-      </div>
+      <input type="text" id="modal-inp" placeholder="Add a lifetime task…" maxlength="100" onkeydown="if(event.key==='Enter')addMasterTodo()">
+      <button class="btn btn-add-v" id="modal-add-btn" onclick="addMasterTodo()">Add</button>
     </div>
   </div>
 </div>
@@ -452,50 +388,101 @@ let dbState = {
   Vedant:    { isActive:false, lastStartedAt:null, totalPastSeconds:0 },
   Girlfriend:{ isActive:false, lastStartedAt:null, totalPastSeconds:0 }
 };
-
-// masterTodos[user] = [{id,text,done,addedAt}]
-let masterTodos = { Vedant:[], Girlfriend:[] };
-// dailyTodos[user] = [{id,text,done,masterRef,addedAt}]  — resets with day
-let dailyTodos  = { Vedant:[], Girlfriend:[] };
-// nowDoing[user] = string
-let nowDoing = { Vedant:'', Girlfriend:'' };
-// activeActivity[user] = {activity, startedAt} | null
+let masterTodos  = { Vedant:[], Girlfriend:[] };
+let dailyTodos   = { Vedant:[], Girlfriend:[] };
+// activeActivity[u] = {activity, startedAt} | null  — source of truth for "now doing"
 let activeActivity = { Vedant:null, Girlfriend:null };
-// activityLog[user] = [{activity,startedAt,endedAt,seconds}]
-let activityLog = { Vedant:[], Girlfriend:[] };
+// activityLog[u] = [{activity,startedAt,endedAt,seconds}]  — completed segments
+let activityLog  = { Vedant:[], Girlfriend:[] };
 
 let currentModalUser = null;
 
 const ACT_COLORS = {
-  '📚 Studying':'#6366f1',
+  '📚 Studying': '#6366f1',
   '🏫 In School':'#0ea5e9',
-  '🏋️ Exercise':'#f97316',
-  '🎮 Gaming':'#22d3ee',
-  '😴 Sleeping':'#8b5cf6',
-  '🍽️ Eating':'#f59e0b',
-  '😌 Chilling':'#10b981',
+  '🏋️ Exercise': '#f97316',
+  '🎮 Gaming':   '#22d3ee',
+  '😴 Sleeping': '#8b5cf6',
+  '🍽️ Eating':  '#f59e0b',
+  '😌 Chilling': '#10b981',
 };
-const UNTRACKED_COLOR = '#1e293b';
+const UNTRACKED_COLOR = '#1a2540';
 
 function actColor(a){ return ACT_COLORS[a]||'#7c3aed'; }
+function actEmoji(a){
+  const map={'📚 Studying':'📚','🏫 In School':'🏫','🏋️ Exercise':'🏋️',
+    '🎮 Gaming':'🎮','😴 Sleeping':'😴','🍽️ Eating':'🍽️','😌 Chilling':'😌'};
+  if(!a) return '💤';
+  for(const [k,v] of Object.entries(map)) if(a.startsWith(k.slice(0,2))) return v;
+  return '✨';
+}
 function uid(){ return Date.now().toString(36)+Math.random().toString(36).slice(2,5); }
 function escH(s){ return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
-function fmtTime(s){
-  const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60;
-  return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`;
-}
+function fmtTime(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60),sec=s%60; return `${String(h).padStart(2,'0')}:${String(m).padStart(2,'0')}:${String(sec).padStart(2,'0')}`; }
 function fmtHM(s){ const h=Math.floor(s/3600),m=Math.floor((s%3600)/60); return h>0?`${h}h ${m}m`:`${m}m`; }
+function fmtElapsed(ms){
+  const s=Math.floor(ms/1000);
+  if(s<60) return `${s}s`;
+  const m=Math.floor(s/60), h=Math.floor(m/60);
+  if(h>0) return `${h}h ${m%60}m`;
+  return `${m}m`;
+}
 
 // ════════════════════════════════
-// TIMER LOOP
+// TICK LOOP — runs every second, no network
 // ════════════════════════════════
 setInterval(()=>{
   ['Vedant','Girlfriend'].forEach(u=>{
+    // Study timer
     const s=dbState[u]; let secs=s.totalPastSeconds;
     if(s.isActive&&s.lastStartedAt) secs+=Math.max(0,Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000));
     document.getElementById(`time-${u}`).textContent=fmtTime(secs);
+
+    // Activity elapsed timer
+    const act=activeActivity[u];
+    const elEl=document.getElementById(`aelapsed-${u}`);
+    if(act&&act.startedAt){
+      const elapsed=Date.now()-new Date(act.startedAt).getTime();
+      elEl.textContent=fmtElapsed(elapsed);
+      elEl.className='activity-elapsed live';
+    } else {
+      elEl.textContent='';
+      elEl.className='activity-elapsed';
+    }
   });
 },1000);
+
+// ════════════════════════════════
+// RENDER ACTIVITY ROW
+// ════════════════════════════════
+function renderActivityRow(u){
+  const act=activeActivity[u];
+  const iconEl  = document.getElementById(`aicon-${u}`);
+  const nameEl  = document.getElementById(`aname-${u}`);
+  const clearEl = document.getElementById(`aclear-${u}`);
+  const chipsEl = document.getElementById(`chips-${u}`);
+
+  if(act&&act.activity){
+    iconEl.textContent = actEmoji(act.activity);
+    nameEl.textContent = act.activity;
+    nameEl.className   = 'activity-name';
+    clearEl.style.display = 'block';
+    // highlight active chip
+    chipsEl.querySelectorAll('.chip').forEach(c=>{
+      const isV=u==='Vedant';
+      c.classList.remove('chip-active-v','chip-active-g');
+      if(c.textContent.trim().startsWith(actEmoji(act.activity))){
+        c.classList.add(isV?'chip-active-v':'chip-active-g');
+      }
+    });
+  } else {
+    iconEl.textContent = '💤';
+    nameEl.textContent = 'Nothing set';
+    nameEl.className   = 'activity-name empty';
+    clearEl.style.display = 'none';
+    chipsEl.querySelectorAll('.chip').forEach(c=>c.classList.remove('chip-active-v','chip-active-g'));
+  }
+}
 
 // ════════════════════════════════
 // STUDY SESSIONS
@@ -513,80 +500,118 @@ async function fetchSessions(){
 function updateCardUI(u){
   const s=dbState[u];
   const card=document.getElementById(`card-${u}`);
-  const status=document.getElementById(`status-${u}`);
+  const statusPill=document.getElementById(`status-${u}`);
+  const statusTxt=document.getElementById(`status-txt-${u}`);
   const btn=document.getElementById(`btn-${u}`);
   const isV=u==='Vedant';
+  const act=activeActivity[u];
+
+  // Status pill
   if(s.isActive){
-    status.textContent='⚡ Studying Live'; status.className='status live';
-    btn.textContent='Pause Session'; btn.className='btn btn-amber';
+    statusPill.className='status-pill live';
+    statusTxt.textContent='Studying Live';
     card.className='card '+(isV?'active-v':'active-g');
-  }else{
-    status.textContent='Paused / Offline'; status.className='status';
-    btn.textContent='Resume Studying'; btn.className='btn '+(isV?'btn-primary-v':'btn-primary-g');
+  } else if(act&&act.activity){
+    statusPill.className='status-pill live';
+    statusTxt.textContent='Active';
     card.className='card';
+  } else {
+    statusPill.className='status-pill';
+    statusTxt.textContent='Offline';
+    card.className='card';
+  }
+
+  // Study button (big, full-width at card bottom)
+  if(s.isActive){
+    btn.textContent='⏸ Pause Studying';
+    btn.className=`btn ${isV?'btn-study-v':'btn-study-g'} active`;
+  } else {
+    btn.textContent='▶ Start Studying';
+    btn.className=`btn ${isV?'btn-study-v':'btn-study-g'}`;
   }
 }
 
 async function handleToggle(u){
   const s=dbState[u]; const now=new Date().toISOString();
   if(!s.isActive){
-    dbState[u].isActive=true; dbState[u].lastStartedAt=now; updateCardUI(u);
+    // Starting study — log any previous non-study activity first, then set Studying
+    if(activeActivity[u]&&activeActivity[u].activity!=='📚 Studying'){
+      const prev=activeActivity[u];
+      const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
+      if(secs>30){activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:now,seconds:secs}); await saveActivityLog(u);}
+    }
+    activeActivity[u]={activity:'📚 Studying',startedAt:now};
+    dbState[u].isActive=true; dbState[u].lastStartedAt=now;
+    renderActivityRow(u); updateCardUI(u); renderPie(u);
+    await _sb.from('app_state').upsert({key:`activeact_${u}`,value:JSON.stringify({activity:'📚 Studying',startedAt:now})},{onConflict:'key'});
     await _sb.from('study_sessions').update({is_active:true,last_started_at:now}).eq('user_name',u);
   }else{
+    // Pausing study — log the study segment, clear activeActivity
     const delta=Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000);
+    const tot=delta>0?s.totalPastSeconds+delta:s.totalPastSeconds;
     if(delta>0){
-      const tot=s.totalPastSeconds+delta;
-      dbState[u]={isActive:false,lastStartedAt:null,totalPastSeconds:tot}; updateCardUI(u);
+      activityLog[u].push({activity:'📚 Studying',startedAt:s.lastStartedAt,endedAt:now,seconds:delta});
+      await saveActivityLog(u);
+    }
+    activeActivity[u]=null;
+    dbState[u]={isActive:false,lastStartedAt:null,totalPastSeconds:tot};
+    renderActivityRow(u); updateCardUI(u); renderPie(u);
+    await _sb.from('app_state').upsert({key:`activeact_${u}`,value:'null'},{onConflict:'key'});
+    if(delta>0){
       await _sb.from('study_sessions').update({is_active:false,last_started_at:null,total_past_seconds:tot}).eq('user_name',u);
       await _sb.from('study_history').insert([{user_name:u,duration_seconds:delta}]);
     }else{
-      dbState[u].isActive=false; dbState[u].lastStartedAt=null; updateCardUI(u);
       await _sb.from('study_sessions').update({is_active:false,last_started_at:null}).eq('user_name',u);
     }
   }
 }
 
 async function resetDayCounters(){
-  if(!confirm("Reset today's timers, activity chart, and daily tasks? Your master list & history are safe!"))return;
+  if(!confirm("Reset today's timers, activity chart, and daily tasks?"))return;
   ['Vedant','Girlfriend'].forEach(u=>{
     dbState[u]={isActive:false,lastStartedAt:null,totalPastSeconds:0}; updateCardUI(u);
     activityLog[u]=[]; activeActivity[u]=null;
-    dailyTodos[u]=[];
-    renderDaily(u); renderPie(u);
+    dailyTodos[u]=[]; renderDaily(u); renderPie(u); renderActivityRow(u);
     _sb.from('app_state').upsert({key:`actlog_${u}`,value:'[]'},{onConflict:'key'});
     _sb.from('app_state').upsert({key:`daily_${u}`,value:'[]'},{onConflict:'key'});
+    _sb.from('app_state').upsert({key:`activeact_${u}`,value:'null'},{onConflict:'key'});
   });
   await _sb.from('study_sessions').update({is_active:false,last_started_at:null,total_past_seconds:0}).neq('user_name','__impossible__');
 }
 
 // ════════════════════════════════
-// NOW DOING
+// NOW DOING / ACTIVITY
 // ════════════════════════════════
-function handleNdPreset(u){
-  const sel=document.getElementById(`nd-sel-${u}`);
-  const inp=document.getElementById(`nd-inp-${u}`);
-  inp.style.display=sel.value==='custom'?'block':'none';
-  if(sel.value==='custom') inp.focus();
+function showCustom(u){
+  const el=document.getElementById(`custom-${u}`);
+  el.classList.toggle('show');
+  if(el.classList.contains('show')) document.getElementById(`custom-inp-${u}`).focus();
 }
 
-async function saveNowDoing(u){
-  const sel=document.getElementById(`nd-sel-${u}`);
-  const inp=document.getElementById(`nd-inp-${u}`);
-  let text=sel.value==='custom'?inp.value.trim():sel.value;
-  if(!text)return;
-  // Close previous activity and log it
+function submitCustom(u){
+  const inp=document.getElementById(`custom-inp-${u}`);
+  const text=inp.value.trim(); if(!text)return;
+  inp.value='';
+  document.getElementById(`custom-${u}`).classList.remove('show');
+  setActivity(u, text);
+}
+
+async function setActivity(u, text){
+  // Close and log previous activity
   if(activeActivity[u]){
     const prev=activeActivity[u];
     const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
-    if(secs>30){activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:new Date().toISOString(),seconds:secs}); await saveActivityLog(u);}
+    if(secs>30){
+      activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:new Date().toISOString(),seconds:secs});
+      await saveActivityLog(u);
+    }
   }
   const startedAt=new Date().toISOString();
   activeActivity[u]={activity:text,startedAt};
-  nowDoing[u]=text;
-  inp.value=''; inp.style.display='none'; sel.value='';
-  renderNowDoing(u); renderPie(u);
-  // Save both the display text AND the active activity so other devices can restore live tracking
-  await _sb.from('app_state').upsert({key:`nowdoing_${u}`,value:text},{onConflict:'key'});
+  renderActivityRow(u);
+  updateCardUI(u);
+  renderPie(u);
+  // Persist to Supabase — both keys so fetchNowDoing can restore full state
   await _sb.from('app_state').upsert({key:`activeact_${u}`,value:JSON.stringify({activity:text,startedAt})},{onConflict:'key'});
 }
 
@@ -594,219 +619,39 @@ async function clearNowDoing(u){
   if(activeActivity[u]){
     const prev=activeActivity[u];
     const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
-    if(secs>30){activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:new Date().toISOString(),seconds:secs}); await saveActivityLog(u);}
+    if(secs>30){
+      activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:new Date().toISOString(),seconds:secs});
+      await saveActivityLog(u);
+    }
     activeActivity[u]=null;
   }
-  nowDoing[u]='';
-  document.getElementById(`nd-disp-${u}`).style.display='none';
-  document.getElementById(`nd-sel-${u}`).value='';
+  renderActivityRow(u);
+  updateCardUI(u);
   renderPie(u);
-  // Clear both nowdoing and activeact so other devices stop tracking this activity live
-  await _sb.from('app_state').upsert({key:`nowdoing_${u}`,value:''},{onConflict:'key'});
   await _sb.from('app_state').upsert({key:`activeact_${u}`,value:'null'},{onConflict:'key'});
 }
 
-function renderNowDoing(u){
-  const disp=document.getElementById(`nd-disp-${u}`);
-  const txt=document.getElementById(`nd-txt-${u}`);
-  if(nowDoing[u]){txt.textContent=nowDoing[u]; disp.style.display='flex';}
-  else{disp.style.display='none';}
-}
-
-async function fetchNowDoing(){
-  // Fetch both nowdoing text and activeact (which carries the startedAt for live pie tracking)
+// ── Fetch & restore activity state from Supabase (called on every 10s poll) ──
+async function fetchActivityState(){
   const {data}=await _sb.from('app_state').select('*').in('key',[
-    'nowdoing_Vedant','nowdoing_Girlfriend',
     'activeact_Vedant','activeact_Girlfriend'
   ]);
   if(!data)return;
-  // First pass: restore activeActivity so pie chart can show live time
+  const todayStart=new Date(); todayStart.setHours(0,0,0,0);
   data.forEach(r=>{
-    if(!r.key.startsWith('activeact_')) return;
     const u=r.key.replace('activeact_','');
     try{
       const parsed=(r.value&&r.value!=='null')?JSON.parse(r.value):null;
-      // Only restore if it is today (guard against stale data from yesterday)
-      if(parsed&&parsed.startedAt){
-        const todayStart=new Date(); todayStart.setHours(0,0,0,0);
-        if(new Date(parsed.startedAt)>=todayStart){
-          activeActivity[u]={activity:parsed.activity,startedAt:parsed.startedAt};
-        } else {
-          activeActivity[u]=null;
-        }
+      if(parsed&&parsed.startedAt&&new Date(parsed.startedAt)>=todayStart){
+        activeActivity[u]={activity:parsed.activity,startedAt:parsed.startedAt};
       } else {
         activeActivity[u]=null;
       }
     }catch(e){ activeActivity[u]=null; }
-  });
-  // Second pass: restore display text and re-render
-  data.forEach(r=>{
-    if(!r.key.startsWith('nowdoing_')) return;
-    const u=r.key.replace('nowdoing_','');
-    nowDoing[u]=r.value||'';
-    renderNowDoing(u);
-    renderPie(u);
+    renderActivityRow(u);
+    updateCardUI(u);
   });
 }
-
-// ════════════════════════════════
-// MASTER TODO (lifetime, per user)
-// ════════════════════════════════
-async function fetchMasterTodos(){
-  const {data}=await _sb.from('app_state').select('*').in('key',['master_Vedant','master_Girlfriend']);
-  if(!data)return;
-  data.forEach(r=>{
-    const u=r.key.replace('master_','');
-    try{masterTodos[u]=JSON.parse(r.value)||[];}catch(e){masterTodos[u]=[];}
-  });
-  if(currentModalUser) renderModal(currentModalUser);
-}
-
-async function saveMasterTodos(u){
-  await _sb.from('app_state').upsert({key:`master_${u}`,value:JSON.stringify(masterTodos[u])},{onConflict:'key'});
-}
-
-function addMasterTodo(){
-  const inp=document.getElementById('modal-inp');
-  const text=inp.value.trim(); if(!text)return;
-  inp.value='';
-  const u=currentModalUser;
-  masterTodos[u].unshift({id:uid(),text,done:false,addedAt:new Date().toISOString()});
-  renderModal(u); saveMasterTodos(u);
-}
-
-function toggleMasterTodo(u,id){
-  const t=masterTodos[u].find(x=>x.id===id); if(t) t.done=!t.done;
-  renderModal(u); saveMasterTodos(u);
-}
-
-function deleteMasterTodo(u,id){
-  masterTodos[u]=masterTodos[u].filter(x=>x.id!==id);
-  // also remove from daily if ref
-  dailyTodos[u]=dailyTodos[u].filter(x=>x.masterRef!==id);
-  renderDaily(u); saveDailyTodos(u);
-  renderModal(u); saveMasterTodos(u);
-}
-
-function addToDaily(u,id){
-  const t=masterTodos[u].find(x=>x.id===id); if(!t)return;
-  if(dailyTodos[u].some(x=>x.masterRef===id))return; // already there
-  dailyTodos[u].push({id:uid(),text:t.text,done:false,masterRef:id,addedAt:new Date().toISOString()});
-  renderDaily(u); saveDailyTodos(u);
-  renderModal(u); // refresh badges
-}
-
-function removeFromDaily(u,masterRef){
-  dailyTodos[u]=dailyTodos[u].filter(x=>x.masterRef!==masterRef);
-  renderDaily(u); saveDailyTodos(u);
-  renderModal(u);
-}
-
-function renderModal(u){
-  const body=document.getElementById('modal-body');
-  const todos=masterTodos[u];
-  const done=todos.filter(t=>t.done).length;
-  document.getElementById('modal-sub').textContent=`${done}/${todos.length} done`;
-  const isV=u==='Vedant';
-  const color=isV?'#2563eb':'#db2777'; const lbl=isV?'V':'H';
-  if(!todos.length){body.innerHTML='<div class="empty-state" style="padding:24px 0;text-align:center;">No tasks yet — add one below</div>';return;}
-  const sorted=[...todos].sort((a,b)=>a.done-b.done);
-  body.innerHTML=sorted.map(t=>{
-    const inDaily=dailyTodos[u].some(x=>x.masterRef===t.id);
-    return `<div class="master-item slide-up">
-      <button onclick="toggleMasterTodo('${u}','${t.id}')"
-        class="dt-check ${t.done?(isV?'done-v':'done-g'):''}"
-        style="${t.done?`background:${color};border-color:${color}`:''}">
-        ${t.done?`<span style="color:#fff;font-size:9px;">✓</span>`:''}
-      </button>
-      <span class="master-item-text ${t.done?'done':''}">${escH(t.text)}</span>
-      ${inDaily
-        ?`<button class="master-add-btn ${isV?'in-v':'in-g'}" onclick="removeFromDaily('${u}','${t.id}')">✓ Today</button>`
-        :`<button class="master-add-btn ${isV?'add-v':'add-g'}" onclick="addToDaily('${u}','${t.id}')">+ Today</button>`
-      }
-      <button class="master-del" onclick="deleteMasterTodo('${u}','${t.id}')">✕</button>
-    </div>`;
-  }).join('');
-}
-
-// ════════════════════════════════
-// DAILY TODO (today only)
-// ════════════════════════════════
-async function fetchDailyTodos(){
-  const todayStart=new Date(); todayStart.setHours(0,0,0,0);
-  const {data}=await _sb.from('app_state').select('*').in('key',['daily_Vedant','daily_Girlfriend']);
-  if(!data)return;
-  data.forEach(r=>{
-    const u=r.key.replace('daily_','');
-    try{
-      const parsed=JSON.parse(r.value)||[];
-      // filter to today
-      dailyTodos[u]=parsed.filter(t=>new Date(t.addedAt)>=todayStart);
-    }catch(e){dailyTodos[u]=[];}
-    renderDaily(u);
-  });
-}
-
-async function saveDailyTodos(u){
-  await _sb.from('app_state').upsert({key:`daily_${u}`,value:JSON.stringify(dailyTodos[u])},{onConflict:'key'});
-}
-
-function toggleDailyTodo(u,id){
-  const t=dailyTodos[u].find(x=>x.id===id); if(t) t.done=!t.done;
-  renderDaily(u); saveDailyTodos(u);
-}
-
-function deleteDailyTodo(u,id){
-  dailyTodos[u]=dailyTodos[u].filter(x=>x.id!==id);
-  renderDaily(u); saveDailyTodos(u);
-  renderModal(u); // refresh "✓ Today" badges
-}
-
-function renderDaily(u){
-  const c=document.getElementById(`daily-${u}`);
-  const isV=u==='Vedant'; const color=isV?'#2563eb':'#db2777';
-  if(!dailyTodos[u].length){c.innerHTML='<div class="empty-state">No tasks for today — open Master List to add</div>';return;}
-  const sorted=[...dailyTodos[u]].sort((a,b)=>a.done-b.done);
-  c.innerHTML=sorted.map(t=>`
-    <div class="daily-todo-item">
-      <button class="dt-check ${t.done?(isV?'done-v':'done-g'):''}"
-        style="${t.done?`background:${color};border-color:${color}`:''}"
-        onclick="toggleDailyTodo('${u}','${t.id}')">
-        ${t.done?`<span style="color:#fff;font-size:9px;">✓</span>`:''}
-      </button>
-      <span class="dt-label ${t.done?'done':''}">${escH(t.text)}</span>
-      <button class="dt-del" onclick="deleteDailyTodo('${u}','${t.id}')">✕</button>
-    </div>`).join('');
-}
-
-// ════════════════════════════════
-// MODAL
-// ════════════════════════════════
-function openModal(u){
-  currentModalUser=u;
-  const isV=u==='Vedant';
-  document.getElementById('modal-title').textContent=`${isV?'Nightfury ⚡':'Lightfury 🌸'}'s Master To-Do`;
-  document.getElementById('modal-title').style.color=isV?'#60a5fa':'#f472b6';
-  document.getElementById('modal-add-btn').className=`btn ${isV?'btn-add-v':'btn-add-g'}`;
-  document.getElementById('modal-inp').style.borderColor='';
-  renderModal(u);
-  document.getElementById('modal-overlay').classList.add('open');
-  document.body.style.overflow='hidden';
-  setTimeout(()=>document.getElementById('modal-inp').focus(),300);
-}
-
-function closeModal(){
-  document.getElementById('modal-overlay').classList.remove('open');
-  document.body.style.overflow='';
-  currentModalUser=null;
-}
-
-function handleOverlayClick(e){
-  if(e.target===document.getElementById('modal-overlay')) closeModal();
-}
-
-// Close on escape
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 
 // ════════════════════════════════
 // ACTIVITY LOG
@@ -836,17 +681,18 @@ async function fetchActivityLog(){
 function buildAgg(u){
   const agg={};
   activityLog[u].forEach(e=>{ agg[e.activity]=(agg[e.activity]||0)+e.seconds; });
+  // Add live activity time
   if(activeActivity[u]){
-    const live=Math.floor((Date.now()-new Date(activeActivity[u].startedAt).getTime())/1000);
+    const live=Math.max(0,Math.floor((Date.now()-new Date(activeActivity[u].startedAt).getTime())/1000));
     if(live>0) agg[activeActivity[u].activity]=(agg[activeActivity[u].activity]||0)+live;
   }
-  // Merge study timer
+  // Merge study timer into 📚 Studying
   const sk='📚 Studying';
   let studySecs=dbState[u].totalPastSeconds;
   if(dbState[u].isActive&&dbState[u].lastStartedAt)
     studySecs+=Math.floor((Date.now()-new Date(dbState[u].lastStartedAt).getTime())/1000);
   const explicitStudy=agg[sk]||0;
-  if(studySecs>explicitStudy) agg[sk]=explicitStudy+(studySecs-explicitStudy);
+  if(studySecs>explicitStudy) agg[sk]=studySecs;
   return agg;
 }
 
@@ -856,73 +702,187 @@ function renderPie(u){
   const legendEl=document.getElementById(`pie-legend-${u}`);
   const agg=buildAgg(u);
   const DAY=86400;
-  let totalTracked=Object.values(agg).reduce((a,b)=>a+b,0);
+  const totalTracked=Object.values(agg).reduce((a,b)=>a+b,0);
   const untracked=Math.max(0,DAY-totalTracked);
   const entries=Object.entries(agg).filter(([,s])=>s>0).sort((a,b)=>b[1]-a[1]);
-  const trackedPct=Math.round((totalTracked/DAY)*100);
+  pctEl.textContent=`${Math.round((totalTracked/DAY)*100)}%`;
 
-  pctEl.textContent=totalTracked>0?`${trackedPct}%`:'0%';
-
-  // Draw SVG donut
-  const cx=70,cy=70,R=58,r=38;
+  const cx=70,cy=70,R=58,r=40;
   const allSlices=[...entries,['__untracked__',untracked]].filter(([,s])=>s>0);
-  let cumAngle=-Math.PI/2;
-  let paths='';
+  let cumAngle=-Math.PI/2, paths='';
   allSlices.forEach(([act,secs])=>{
-    const frac=secs/DAY;
-    const angle=frac*2*Math.PI;
-    const x1=cx+R*Math.cos(cumAngle), y1=cy+R*Math.sin(cumAngle);
-    const x2=cx+R*Math.cos(cumAngle+angle), y2=cy+R*Math.sin(cumAngle+angle);
-    const ix1=cx+r*Math.cos(cumAngle), iy1=cy+r*Math.sin(cumAngle);
-    const ix2=cx+r*Math.cos(cumAngle+angle), iy2=cy+r*Math.sin(cumAngle+angle);
+    const frac=secs/DAY, angle=frac*2*Math.PI;
+    if(angle<0.001){cumAngle+=angle;return;}
+    const x1=cx+R*Math.cos(cumAngle),y1=cy+R*Math.sin(cumAngle);
+    const x2=cx+R*Math.cos(cumAngle+angle),y2=cy+R*Math.sin(cumAngle+angle);
+    const ix1=cx+r*Math.cos(cumAngle),iy1=cy+r*Math.sin(cumAngle);
+    const ix2=cx+r*Math.cos(cumAngle+angle),iy2=cy+r*Math.sin(cumAngle+angle);
     const large=angle>Math.PI?1:0;
     const color=act==='__untracked__'?UNTRACKED_COLOR:actColor(act);
     const isLive=activeActivity[u]&&activeActivity[u].activity===act;
-    // path: outer arc -> inner arc (reverse)
-    const d=`M${x1},${y1} A${R},${R},0,${large},1,${x2},${y2} L${ix2},${iy2} A${r},${r},0,${large},0,${ix1},${iy1} Z`;
-    paths+=`<path d="${d}" fill="${color}" opacity="${act==='__untracked__'?1:0.85}" stroke="#030712" stroke-width="1.5"/>`;
-    if(isLive){
-      // small glow dot at midpoint
-      const mid=cumAngle+angle/2;
-      const mx=cx+(R+6)*Math.cos(mid), my=cy+(R+6)*Math.sin(mid);
-      paths+=`<circle cx="${mx}" cy="${my}" r="3" fill="#34d399" opacity="0.9"/>`;
-    }
+    paths+=`<path d="M${x1},${y1} A${R},${R},0,${large},1,${x2},${y2} L${ix2},${iy2} A${r},${r},0,${large},0,${ix1},${iy1} Z" fill="${color}" opacity="${act==='__untracked__'?1:0.88}" stroke="#030712" stroke-width="1"/>`;
+    if(isLive){const mid=cumAngle+angle/2;paths+=`<circle cx="${cx+(R+5)*Math.cos(mid)}" cy="${cy+(R+5)*Math.sin(mid)}" r="2.5" fill="#34d399"/>`;}
     cumAngle+=angle;
   });
   svgEl.innerHTML=paths;
 
-  // Legend
   const legendItems=entries.map(([act,secs])=>{
     const isLive=activeActivity[u]&&activeActivity[u].activity===act;
-    return `<div class="legend-row">
-      <div class="legend-dot" style="background:${actColor(act)};"></div>
-      <span class="legend-name">${escH(act)}${isLive?' <span style="color:#34d399;font-size:9px;">●</span>':''}</span>
-      <span class="legend-time">${fmtHM(secs)}</span>
-    </div>`;
+    return `<div class="legend-row"><div class="legend-dot" style="background:${actColor(act)};"></div><span class="legend-name">${escH(act)}${isLive?' <span style="color:#34d399;font-size:8px;"> ●</span>':''}</span><span class="legend-time">${fmtHM(secs)}</span></div>`;
   });
-  if(untracked>0) legendItems.push(`<div class="legend-row"><div class="legend-dot" style="background:#1e293b;border:1px solid #334155;"></div><span class="legend-name">Untracked</span><span class="legend-time">${fmtHM(untracked)}</span></div>`);
+  if(untracked>0) legendItems.push(`<div class="legend-row"><div class="legend-dot" style="background:#1a2540;border:1px solid #1e293b;"></div><span class="legend-name" style="color:#4b6175;">Untracked</span><span class="legend-time" style="color:#475569;">${fmtHM(untracked)}</span></div>`);
   legendEl.innerHTML=legendItems.join('');
-
-  document.getElementById('chart-time').textContent=`Updated ${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
+  document.getElementById('chart-time').textContent=`${new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'})}`;
 }
 
 // ════════════════════════════════
-// BOOT
+// MASTER TODOS
+// ════════════════════════════════
+async function fetchMasterTodos(){
+  const {data}=await _sb.from('app_state').select('*').in('key',['master_Vedant','master_Girlfriend']);
+  if(!data)return;
+  data.forEach(r=>{
+    const u=r.key.replace('master_','');
+    try{masterTodos[u]=JSON.parse(r.value)||[];}catch(e){masterTodos[u]=[];}
+  });
+  if(currentModalUser) renderModal(currentModalUser);
+}
+async function saveMasterTodos(u){ await _sb.from('app_state').upsert({key:`master_${u}`,value:JSON.stringify(masterTodos[u])},{onConflict:'key'}); }
+function addMasterTodo(){
+  const inp=document.getElementById('modal-inp');
+  const text=inp.value.trim(); if(!text)return;
+  inp.value='';
+  masterTodos[currentModalUser].unshift({id:uid(),text,done:false,addedAt:new Date().toISOString()});
+  renderModal(currentModalUser); saveMasterTodos(currentModalUser);
+}
+function toggleMasterTodo(u,id){ const t=masterTodos[u].find(x=>x.id===id); if(t)t.done=!t.done; renderModal(u); saveMasterTodos(u); }
+function deleteMasterTodo(u,id){
+  masterTodos[u]=masterTodos[u].filter(x=>x.id!==id);
+  dailyTodos[u]=dailyTodos[u].filter(x=>x.masterRef!==id);
+  renderDaily(u); saveDailyTodos(u); renderModal(u); saveMasterTodos(u);
+}
+function addToDaily(u,id){
+  const t=masterTodos[u].find(x=>x.id===id); if(!t)return;
+  if(dailyTodos[u].some(x=>x.masterRef===id))return;
+  dailyTodos[u].push({id:uid(),text:t.text,done:false,masterRef:id,addedAt:new Date().toISOString()});
+  renderDaily(u); saveDailyTodos(u); renderModal(u);
+}
+function removeFromDaily(u,masterRef){
+  dailyTodos[u]=dailyTodos[u].filter(x=>x.masterRef!==masterRef);
+  renderDaily(u); saveDailyTodos(u); renderModal(u);
+}
+function renderModal(u){
+  const body=document.getElementById('modal-body');
+  const todos=masterTodos[u];
+  const done=todos.filter(t=>t.done).length;
+  document.getElementById('modal-sub').textContent=`${done}/${todos.length} done`;
+  const isV=u==='Vedant';
+  const color=isV?'#2563eb':'#db2777';
+  if(!todos.length){body.innerHTML='<div class="empty-state" style="padding:20px 0;text-align:center;">No tasks yet — add one below</div>';return;}
+  const sorted=[...todos].sort((a,b)=>a.done-b.done);
+  body.innerHTML=sorted.map(t=>{
+    const inDaily=dailyTodos[u].some(x=>x.masterRef===t.id);
+    return `<div class="master-item slide-up">
+      <button onclick="toggleMasterTodo('${u}','${t.id}')" class="dt-check ${t.done?(isV?'done-v':'done-g'):''}" style="${t.done?`background:${color};border-color:${color}`:''}">
+        ${t.done?`<span style="color:#fff;font-size:8px;">✓</span>`:''}
+      </button>
+      <span class="master-item-text ${t.done?'done':''}">${escH(t.text)}</span>
+      ${inDaily
+        ?`<button class="master-add-btn ${isV?'in-v':'in-g'}" onclick="removeFromDaily('${u}','${t.id}')">✓ Today</button>`
+        :`<button class="master-add-btn" onclick="addToDaily('${u}','${t.id}')">+ Today</button>`}
+      <button class="master-del" onclick="deleteMasterTodo('${u}','${t.id}')">✕</button>
+    </div>`;
+  }).join('');
+}
+
+// ════════════════════════════════
+// DAILY TODOS
+// ════════════════════════════════
+async function fetchDailyTodos(){
+  const todayStart=new Date(); todayStart.setHours(0,0,0,0);
+  const {data}=await _sb.from('app_state').select('*').in('key',['daily_Vedant','daily_Girlfriend']);
+  if(!data)return;
+  data.forEach(r=>{
+    const u=r.key.replace('daily_','');
+    try{dailyTodos[u]=(JSON.parse(r.value)||[]).filter(t=>new Date(t.addedAt)>=todayStart);}
+    catch(e){dailyTodos[u]=[];}
+    renderDaily(u);
+  });
+}
+async function saveDailyTodos(u){ await _sb.from('app_state').upsert({key:`daily_${u}`,value:JSON.stringify(dailyTodos[u])},{onConflict:'key'}); }
+function toggleDailyTodo(u,id){ const t=dailyTodos[u].find(x=>x.id===id); if(t)t.done=!t.done; renderDaily(u); saveDailyTodos(u); }
+function deleteDailyTodo(u,id){ dailyTodos[u]=dailyTodos[u].filter(x=>x.id!==id); renderDaily(u); saveDailyTodos(u); renderModal(u); }
+function renderDaily(u){
+  const c=document.getElementById(`daily-${u}`);
+  const isV=u==='Vedant'; const color=isV?'#2563eb':'#db2777';
+  if(!dailyTodos[u].length){c.innerHTML='<div class="empty-state">No tasks added yet</div>';return;}
+  const sorted=[...dailyTodos[u]].sort((a,b)=>a.done-b.done);
+  c.innerHTML=sorted.map(t=>`
+    <div class="dt-item">
+      <button class="dt-check ${t.done?(isV?'done-v':'done-g'):''}" style="${t.done?`background:${color};border-color:${color}`:''}" onclick="toggleDailyTodo('${u}','${t.id}')">
+        ${t.done?`<span style="color:#fff;font-size:8px;">✓</span>`:''}
+      </button>
+      <span class="dt-label ${t.done?'done':''}">${escH(t.text)}</span>
+      <button class="dt-del" onclick="deleteDailyTodo('${u}','${t.id}')">✕</button>
+    </div>`).join('');
+}
+
+// ════════════════════════════════
+// MODAL
+// ════════════════════════════════
+function openModal(u){
+  currentModalUser=u;
+  const isV=u==='Vedant';
+  document.getElementById('modal-title').textContent=`${isV?'Nightfury ⚡':'Lightfury 🌸'} Master List`;
+  document.getElementById('modal-title').style.color=isV?'#60a5fa':'#f472b6';
+  document.getElementById('modal-add-btn').className=`btn ${isV?'btn-add-v':'btn-add-g'}`;
+  renderModal(u);
+  document.getElementById('modal-overlay').classList.add('open');
+  document.body.style.overflow='hidden';
+  setTimeout(()=>document.getElementById('modal-inp').focus(),300);
+}
+function closeModal(){ document.getElementById('modal-overlay').classList.remove('open'); document.body.style.overflow=''; currentModalUser=null; }
+function handleOverlayClick(e){ if(e.target===document.getElementById('modal-overlay')) closeModal(); }
+document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+
+// ════════════════════════════════
+// UCEED 2027 COUNTDOWN
+// ════════════════════════════════
+(function uceedCountdown(){
+  const TARGET=new Date('2027-01-18T00:00:00');
+  function update(){
+    const now=new Date(), diff=TARGET-now;
+    if(diff<=0){document.getElementById('uceed-days').textContent='0';return;}
+    const days=Math.ceil(diff/86400000);
+    const weeks=Math.floor(days/7);
+    const months=Math.floor(days/30.44);
+    const hrs=Math.floor(diff/3600000);
+    document.getElementById('uceed-days').textContent=days.toLocaleString();
+    document.getElementById('uceed-grid').innerHTML=[
+      ['Weeks',weeks],['Months',`~${months}`],
+      ['Hours',hrs.toLocaleString()],['Days in month',Math.ceil((new Date(now.getFullYear(),now.getMonth()+1,0)-now)/86400000)]
+    ].map(([l,v])=>`<div class="uceed-cell"><div class="uceed-val">${v}</div><div class="uceed-lbl">${l}</div></div>`).join('');
+  }
+  update(); setInterval(update,60000);
+})();
+
+// ════════════════════════════════
+// BOOT + UNIFIED 10s POLL
 // ════════════════════════════════
 async function init(){
   await fetchSessions();
-  await fetchNowDoing();
+  await fetchActivityState();   // restores activeActivity + renders rows
+  await fetchActivityLog();
   await fetchMasterTodos();
   await fetchDailyTodos();
-  await fetchActivityLog();
+  ['Vedant','Girlfriend'].forEach(renderPie);
 }
 init();
 
-// ── Unified 10-second sync: everything from Supabase, then re-render pies ──
 setInterval(async()=>{
   await fetchSessions();
-  await fetchNowDoing();      // also restores activeActivity for live pie tracking
-  await fetchActivityLog();   // completed activity segments
+  await fetchActivityState();   // ← this is what makes "now doing" live on all devices
+  await fetchActivityLog();
   await fetchMasterTodos();
   await fetchDailyTodos();
   ['Vedant','Girlfriend'].forEach(renderPie);
