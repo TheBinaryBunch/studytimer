@@ -224,6 +224,9 @@ input[type=text]::placeholder{color:#4b6175;}
         <span class="chip chip-v" onclick="setActivity('Vedant','😴 Sleeping')">😴 Sleep</span>
         <span class="chip chip-v" onclick="setActivity('Vedant','🍽️ Eating')">🍽️ Eat</span>
         <span class="chip chip-v" onclick="setActivity('Vedant','😌 Chilling')">😌 Chill</span>
+        <span class="chip chip-v" onclick="setActivity('Vedant','🚻 Washroom')">🚻 Washroom</span>
+        <span class="chip chip-v" onclick="setActivity('Vedant','🚶 Walk')">🚶 Walk</span>
+        <span class="chip chip-v" onclick="setActivity('Vedant','🛁 Bathing')">🛁 Bathing</span>
         <span class="chip chip-v" onclick="showCustom('Vedant')">✏️</span>
       </div>
       <div class="chip-custom" id="custom-Vedant">
@@ -279,10 +282,13 @@ input[type=text]::placeholder{color:#4b6175;}
       <div class="quick-chips" id="chips-Girlfriend">
         <span class="chip chip-g" onclick="setActivity('Girlfriend','🏫 In School')">🏫 School</span>
         <span class="chip chip-g" onclick="setActivity('Girlfriend','🏋️ Exercise')">🏋️ Exercise</span>
-        <span class="chip chip-g" onclick="setActivity('Girlfriend','🎮 Gaming')">🎮 Gaming</span>
+        <span class="chip chip-g" onclick="setActivity('Girlfriend','📺 K-Drama')">📺 K-Drama</span>
         <span class="chip chip-g" onclick="setActivity('Girlfriend','😴 Sleeping')">😴 Sleep</span>
         <span class="chip chip-g" onclick="setActivity('Girlfriend','🍽️ Eating')">🍽️ Eat</span>
         <span class="chip chip-g" onclick="setActivity('Girlfriend','😌 Chilling')">😌 Chill</span>
+        <span class="chip chip-g" onclick="setActivity('Girlfriend','🚻 Washroom')">🚻 Washroom</span>
+        <span class="chip chip-g" onclick="setActivity('Girlfriend','🚶 Walk')">🚶 Walk</span>
+        <span class="chip chip-g" onclick="setActivity('Girlfriend','🛁 Bathing')">🛁 Bathing</span>
         <span class="chip chip-g" onclick="showCustom('Girlfriend')">✏️</span>
       </div>
       <div class="chip-custom" id="custom-Girlfriend">
@@ -343,7 +349,7 @@ input[type=text]::placeholder{color:#4b6175;}
   <div class="uceed-card">
     <div class="uceed-header">
       <div class="uceed-title">🎯 UCEED 2027</div>
-      <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4b6175;">Jan 18, 2027</div>
+      <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4b6175;">Jan 17, 2027</div>
     </div>
     <div style="display:flex;align-items:baseline;gap:8px;">
       <div id="uceed-days" class="uceed-days">—</div>
@@ -406,12 +412,16 @@ const ACT_COLORS = {
   '😴 Sleeping': '#8b5cf6',
   '🍽️ Eating':  '#f59e0b',
   '😌 Chilling': '#10b981',
+  '🚻 Washroom': '#64748b',
+  '🚶 Walk':     '#84cc16',
+  '🛁 Bathing':  '#38bdf8',
+  '📺 K-Drama':  '#ec4899',
 };
 const UNTRACKED_COLOR = '#1a2540';
 
 function actColor(a){ return ACT_COLORS[a]||'#7c3aed'; }
 function actEmoji(a){
-  const map={'📚':'📚','🏫':'🏫','🏋':'🏋️','🎮':'🎮','😴':'😴','🍽':'🍽️','😌':'😌'};
+  const map={'📚':'📚','🏫':'🏫','🏋':'🏋️','🎮':'🎮','😴':'😴','🍽':'🍽️','😌':'😌','🚻':'🚻','🚶':'🚶','🛁':'🛁','📺':'📺'};
   if(!a) return '💤';
   const first=[...a][0];
   return map[first]||'✨';
@@ -446,6 +456,9 @@ setInterval(()=>{
     } else {
       elEl.textContent=''; elEl.className='activity-elapsed';
     }
+    // keep the pie chart + legend numbers ticking in sync with the header timer,
+    // instead of only refreshing on activity/log changes (was causing graph vs list drift)
+    if(s.isActive||act) renderPie(u);
   });
 },1000);
 
@@ -575,7 +588,7 @@ function applySessionRow(row){
     lastStartedAt:row.last_started_at,
     totalPastSeconds:row.total_past_seconds
   };
-  updateCardUI(u);
+  updateCardUI(u); renderPie(u);
 }
 
 async function fetchSessions(){
@@ -618,14 +631,22 @@ async function handleToggle(u){
 }
 
 async function resetDayCounters(){
-  if(!confirm("Reset today's timers, activity chart, and daily tasks?"))return;
+  if(!confirm("Reset today's timers, activity chart, and daily tasks? (Current status is kept)"))return;
+  const now=new Date().toISOString();
   for(const u of ['Vedant','Girlfriend']){
     dbState[u]={isActive:false,lastStartedAt:null,totalPastSeconds:0};
-    activityLog[u]=[]; activeActivity[u]=null; dailyTodos[u]=[];
+    activityLog[u]=[]; dailyTodos[u]=[];
+    // keep whatever status is currently set (e.g. Sleeping overnight) — just restart
+    // its clock so the new day's tracking starts fresh instead of carrying over seconds
+    if(activeActivity[u]&&activeActivity[u].activity){
+      activeActivity[u]={activity:activeActivity[u].activity,startedAt:now};
+    } else {
+      activeActivity[u]=null;
+    }
     updateCardUI(u); renderActivityRow(u); renderDaily(u); renderPie(u);
     await setState(`actlog_${u}`, []);
     await setState(`daily_${u}`, []);
-    await setState(`activeact_${u}`, null);
+    await setState(`activeact_${u}`, activeActivity[u]);
   }
   await _sb.from('study_sessions')
     .update({is_active:false,last_started_at:null,total_past_seconds:0})
@@ -836,7 +857,7 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
 // UCEED 2027 COUNTDOWN
 // ════════════════════════════════
 (function uceedCountdown(){
-  const TARGET=new Date('2027-01-18T00:00:00');
+  const TARGET=new Date('2027-01-17T00:00:00');
   function update(){
     const now=new Date(), diff=TARGET-now;
     if(diff<=0){document.getElementById('uceed-days').textContent='0';return;}
