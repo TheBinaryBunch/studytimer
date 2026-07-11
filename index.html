@@ -83,7 +83,8 @@ input[type=text]::placeholder{color:#4b6175;}
 /* ── Daily todos ── */
 .daily-section{padding:12px 18px;}
 .daily-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.dt-item{display:flex;align-items:center;gap:8px;padding:6px 2px;border-radius:8px;}
+.dt-item{display:flex;align-items:center;gap:8px;padding:6px 2px;border-radius:8px;overflow:hidden;max-height:40px;transition:opacity .4s ease,max-height .4s ease,padding .4s ease,margin .4s ease;opacity:1;}
+.dt-item.dt-removing{opacity:0;max-height:0;padding:0 2px;margin:0;}
 .dt-item:hover .dt-del{opacity:1;}
 .dt-del{opacity:0;background:none;border:none;color:#64748b;cursor:pointer;font-size:11px;padding:0 2px;transition:opacity .12s;}
 .dt-del:hover{color:#f87171;}
@@ -97,7 +98,7 @@ input[type=text]::placeholder{color:#4b6175;}
 .btn-master:hover{border-color:#475569;color:#94a3b8;}
 
 /* ════ PIE CHARTS ════ */
-.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px;}
+.charts-row{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px;}
 .pie-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:14px;display:flex;flex-direction:column;align-items:center;}
 .pie-name{font-size:11px;font-weight:700;letter-spacing:.06em;margin-bottom:10px;}
 .pie-wrap{position:relative;width:130px;height:130px;}
@@ -110,6 +111,14 @@ input[type=text]::placeholder{color:#4b6175;}
 .legend-dot{width:6px;height:6px;border-radius:2px;flex-shrink:0;}
 .legend-name{font-size:10px;color:#64748b;flex:1;}
 .legend-time{font-size:10px;font-weight:600;color:#64748b;font-family:'JetBrains Mono',monospace;}
+
+/* ════ WEEKLY STUDY GRAPH ════ */
+.graph-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 14px 8px;margin-bottom:14px;}
+.graph-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.graph-legend{display:flex;gap:10px;}
+.graph-legend-item{display:flex;align-items:center;gap:4px;font-size:9px;font-weight:600;color:#64748b;}
+.graph-legend-dot{width:7px;height:7px;border-radius:2px;display:inline-block;}
+#graph-svg{width:100%;height:90px;display:block;}
 
 /* ════ MODAL ════ */
 .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:100;display:flex;align-items:flex-end;justify-content:center;opacity:0;pointer-events:none;transition:opacity .2s;}
@@ -136,7 +145,7 @@ input[type=text]::placeholder{color:#4b6175;}
 .master-del:hover{color:#f87171;}
 
 /* ════ UCEED COUNTDOWN ════ */
-.uceed-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:16px 18px;margin-bottom:20px;}
+.uceed-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:14px 16px;margin-bottom:14px;}
 .uceed-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;}
 .uceed-title{font-size:14px;font-weight:800;background:linear-gradient(90deg,#f59e0b,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
 .uceed-days{font-size:36px;font-weight:800;font-family:'JetBrains Mono',monospace;background:linear-gradient(90deg,#f59e0b,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
@@ -144,6 +153,57 @@ input[type=text]::placeholder{color:#4b6175;}
 .uceed-cell{background:#070e1a;border:1px solid #1e293b;border-radius:10px;padding:8px 10px;}
 .uceed-val{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#e2e8f0;}
 .uceed-lbl{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4b6175;margin-top:1px;}
+
+/* ════ DAYS TOGETHER ════ */
+.together-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.together-title{font-size:14px;font-weight:800;background:linear-gradient(90deg,#60a5fa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
+.together-sub{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#4b6175;margin-top:2px;}
+.together-days{font-size:26px;font-weight:800;font-family:'JetBrains Mono',monospace;background:linear-gradient(90deg,#60a5fa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;line-height:1;}
+.together-heart{font-size:20px;flex-shrink:0;}
+
+/* ════ NOTE BUTTON + POPUP ════ */
+.note-row{display:flex;gap:8px;padding:0 14px 12px;}
+.btn-note-v{background:#172033;border:1px solid #2563eb;color:#60a5fa;padding:13px 14px;font-size:14px;border-radius:12px;cursor:pointer;transition:all .15s;}
+.btn-note-g{background:#1e1028;border:1px solid #db2777;color:#f472b6;padding:13px 14px;font-size:14px;border-radius:12px;cursor:pointer;transition:all .15s;}
+.btn-note-v:hover,.btn-note-g:hover{filter:brightness(1.2);}
+.note-compose{background:#0f172a;border:1px solid #1e293b;border-radius:20px;width:100%;max-width:420px;padding:18px;}
+.note-compose-title{font-size:14px;font-weight:800;margin-bottom:10px;}
+.note-compose textarea{background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:10px;padding:10px 13px;font-size:14px;font-family:'Inter',sans-serif;outline:none;width:100%;resize:none;height:80px;transition:border-color .15s;}
+.note-compose textarea:focus{border-color:#6366f1;}
+.note-compose-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end;}
+.note-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:20px;}
+.note-popup-overlay.open{opacity:1;pointer-events:all;}
+.note-popup{background:#0f172a;border:1px solid #334155;border-radius:22px;max-width:360px;width:100%;padding:26px 22px;text-align:center;transform:scale(.85) translateY(10px);transition:transform .3s cubic-bezier(.25,1.4,.4,1);box-shadow:0 20px 60px rgba(0,0,0,.6);}
+.note-popup-overlay.open .note-popup{transform:scale(1) translateY(0);}
+.note-popup-icon{font-size:34px;margin-bottom:8px;}
+.note-popup-from{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
+.note-popup-text{font-size:16px;font-weight:600;color:#e2e8f0;line-height:1.5;white-space:pre-wrap;word-break:break-word;margin-bottom:18px;}
+.note-popup-close{background:linear-gradient(90deg,#60a5fa,#f472b6);border:none;color:#0f172a;font-weight:800;width:46px;height:46px;border-radius:50%;cursor:pointer;font-size:18px;display:inline-flex;align-items:center;justify-content:center;}
+
+/* ════ PERIOD TRACKER ════ */
+.period-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 14px;margin-bottom:14px;}
+.period-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.period-title{font-size:12px;font-weight:800;color:#f472b6;}
+.period-nav{display:flex;align-items:center;gap:6px;}
+.period-nav button{background:#172033;border:1px solid #2a3a50;color:#94a3b8;width:20px;height:20px;border-radius:6px;cursor:pointer;font-size:11px;display:flex;align-items:center;justify-content:center;}
+.period-nav button:hover{border-color:#db2777;color:#f9a8d4;}
+.period-month-lbl{font-size:10px;font-weight:700;color:#cbd5e1;min-width:64px;text-align:center;}
+.period-summary{display:flex;gap:6px;margin-bottom:10px;}
+.period-stat{flex:1;background:#070e1a;border:1px solid #1e293b;border-radius:10px;padding:6px 4px;text-align:center;}
+.period-stat-val{font-size:12px;font-weight:800;color:#f9a8d4;font-family:'JetBrains Mono',monospace;}
+.period-stat-lbl{font-size:7.5px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:#4b6175;margin-top:1px;}
+.period-cal-wrap{max-width:230px;margin:0 auto;}
+.period-cal{display:grid;grid-template-columns:repeat(7,1fr);gap:2px;}
+.period-dow{font-size:8px;font-weight:700;color:#475569;text-align:center;padding-bottom:2px;letter-spacing:.03em;}
+.period-day{aspect-ratio:1;display:flex;align-items:center;justify-content:center;font-size:9.5px;font-weight:600;color:#64748b;border-radius:6px;cursor:pointer;position:relative;background:#0a1424;border:1px solid transparent;transition:all .12s;}
+.period-day:hover{border-color:#334155;}
+.period-day.empty{visibility:hidden;cursor:default;}
+.period-day.is-period{background:#db2777;color:#fff;font-weight:800;}
+.period-day.is-predicted{border:1.5px dashed #f472b6;color:#f9a8d4;}
+.period-day.is-today{box-shadow:0 0 0 1.5px #a78bfa inset;}
+.period-legend{display:flex;gap:12px;margin-top:8px;justify-content:center;flex-wrap:wrap;}
+.period-legend-item{display:flex;align-items:center;gap:4px;font-size:9px;color:#64748b;}
+.period-legend-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;}
 
 /* ── animations ── */
 @keyframes slideUp{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
@@ -183,7 +243,16 @@ input[type=text]::placeholder{color:#4b6175;}
   <!-- header -->
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
     <h1 style="font-size:20px;font-weight:800;background:linear-gradient(90deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.01em;">Our Study Space 🌌</h1>
-    <button class="btn" style="background:#0f172a;border:1px solid #334155;color:#64748b;font-size:10px;padding:6px 10px;border-radius:8px;letter-spacing:.06em;font-weight:700;text-transform:uppercase;" onclick="resetDayCounters()">Reset Day</button>
+  </div>
+
+  <!-- ════ DAYS TOGETHER ════ -->
+  <div class="together-card">
+    <div>
+      <div class="together-title">Days Together</div>
+      <div class="together-sub">Since Oct 6, 2024</div>
+      <div id="together-days" class="together-days">—</div>
+    </div>
+    <div class="together-heart">💞</div>
   </div>
 
   <!-- ════ USER CARDS ════ -->
@@ -246,8 +315,9 @@ input[type=text]::placeholder{color:#4b6175;}
       </div>
       <div id="daily-Vedant"><div class="empty-state">No tasks added yet</div></div>
     </div>
-    <div style="padding:12px 14px;">
-      <button id="btn-Vedant" class="btn btn-study-v" style="width:100%;padding:13px;font-size:14px;border-radius:12px;" onclick="handleToggle('Vedant')">▶ Start Studying</button>
+    <div class="note-row">
+      <button id="btn-Vedant" class="btn btn-study-v" style="flex:1;padding:13px;font-size:14px;border-radius:12px;" onclick="handleToggle('Vedant')">▶ Start Studying</button>
+      <button class="btn-note-v" onclick="openNoteCompose('Vedant')" title="Send a note to Lightfury">💌</button>
     </div>
   </div>
 
@@ -308,8 +378,9 @@ input[type=text]::placeholder{color:#4b6175;}
       </div>
       <div id="daily-Girlfriend"><div class="empty-state">No tasks added yet</div></div>
     </div>
-    <div style="padding:12px 14px;">
-      <button id="btn-Girlfriend" class="btn btn-study-g" style="width:100%;padding:13px;font-size:14px;border-radius:12px;" onclick="handleToggle('Girlfriend')">▶ Start Studying</button>
+    <div class="note-row">
+      <button id="btn-Girlfriend" class="btn btn-study-g" style="flex:1;padding:13px;font-size:14px;border-radius:12px;" onclick="handleToggle('Girlfriend')">▶ Start Studying</button>
+      <button class="btn-note-g" onclick="openNoteCompose('Girlfriend')" title="Send a note to Nightfury">💌</button>
     </div>
   </div>
 
@@ -345,6 +416,18 @@ input[type=text]::placeholder{color:#4b6175;}
     </div>
   </div>
 
+  <!-- ════ WEEKLY STUDY GRAPH ════ -->
+  <div class="graph-card">
+    <div class="graph-header">
+      <div class="label">Study Time — Last 7 Days</div>
+      <div class="graph-legend">
+        <span class="graph-legend-item"><span class="graph-legend-dot" style="background:#60a5fa;"></span>Nightfury</span>
+        <span class="graph-legend-item"><span class="graph-legend-dot" style="background:#f472b6;"></span>Lightfury</span>
+      </div>
+    </div>
+    <svg id="graph-svg" viewBox="0 0 340 100" preserveAspectRatio="none"></svg>
+  </div>
+
   <!-- ════ UCEED 2027 COUNTDOWN ════ -->
   <div class="uceed-card">
     <div class="uceed-header">
@@ -356,6 +439,40 @@ input[type=text]::placeholder{color:#4b6175;}
       <div style="font-size:12px;color:#475569;font-weight:600;">days remaining</div>
     </div>
     <div class="uceed-grid" id="uceed-grid"></div>
+  </div>
+
+  <!-- ════ PERIOD TRACKER (Lightfury) ════ -->
+  <div class="period-card">
+    <div class="period-header">
+      <div class="period-title">🌸 Lightfury's Cycle</div>
+      <div class="period-nav">
+        <button onclick="periodShiftMonth(-1)">‹</button>
+        <div class="period-month-lbl" id="period-month-lbl">—</div>
+        <button onclick="periodShiftMonth(1)">›</button>
+      </div>
+    </div>
+    <div class="period-summary">
+      <div class="period-stat">
+        <div class="period-stat-val" id="period-next-date">—</div>
+        <div class="period-stat-lbl">Next</div>
+      </div>
+      <div class="period-stat">
+        <div class="period-stat-val" id="period-days-away">—</div>
+        <div class="period-stat-lbl">Away</div>
+      </div>
+      <div class="period-stat">
+        <div class="period-stat-val" id="period-avg-cycle">—</div>
+        <div class="period-stat-lbl">Avg</div>
+      </div>
+    </div>
+    <div class="period-cal-wrap">
+      <div class="period-cal" id="period-dow-row"></div>
+      <div class="period-cal" id="period-cal-grid"></div>
+    </div>
+    <div class="period-legend">
+      <div class="period-legend-item"><div class="period-legend-dot" style="background:#db2777;"></div>Logged</div>
+      <div class="period-legend-item"><div class="period-legend-dot" style="background:transparent;border:1.5px dashed #f472b6;"></div>Predicted</div>
+    </div>
   </div>
 
 </div><!-- /page -->
@@ -376,6 +493,28 @@ input[type=text]::placeholder{color:#4b6175;}
       <input type="text" id="modal-inp" placeholder="Add a lifetime task…" maxlength="100" onkeydown="if(event.key==='Enter')addMasterTodo()">
       <button class="btn btn-add-v" id="modal-add-btn" onclick="addMasterTodo()">Add</button>
     </div>
+  </div>
+</div>
+
+<!-- ════ NOTE COMPOSE MODAL ════ -->
+<div id="note-compose-overlay" class="modal-overlay" onclick="if(event.target===this)closeNoteCompose()">
+  <div class="note-compose" onclick="event.stopPropagation()">
+    <div class="note-compose-title" id="note-compose-title">Send a note</div>
+    <textarea id="note-compose-text" maxlength="300" placeholder="Say something sweet…"></textarea>
+    <div class="note-compose-actions">
+      <button class="btn btn-set" onclick="closeNoteCompose()">Cancel</button>
+      <button class="btn btn-add-g" id="note-compose-send" onclick="sendNote()">Send 💌</button>
+    </div>
+  </div>
+</div>
+
+<!-- ════ NOTE POPUP ════ -->
+<div id="note-popup-overlay" class="note-popup-overlay">
+  <div class="note-popup">
+    <div class="note-popup-icon">💌</div>
+    <div class="note-popup-from" id="note-popup-from"></div>
+    <div class="note-popup-text" id="note-popup-text"></div>
+    <button class="note-popup-close" onclick="closeNotePopup()">❤️</button>
   </div>
 </div>
 
@@ -575,6 +714,19 @@ function applyAppStateRow(key, rawValue){
     const u=key.replace('master_','');
     masterTodos[u]=val||[];
     if(currentModalUser===u) renderModal(u);
+
+  } else if(key==='period_Girlfriend'){
+    periodDates=Array.isArray(val)?val:[];
+    renderPeriodTracker();
+
+  } else if(key==='note_for_Vedant'||key==='note_for_Girlfriend'){
+    if(!val||!val.text) return;
+    if(lastSentNoteId[key]===val.id){
+      // this is the note we just sent from this very device — don't pop it up for ourselves
+      lastSentNoteId[key]=null;
+      return;
+    }
+    showNotePopup(val.from,val.text,key,val.id);
   }
 }
 
@@ -612,6 +764,7 @@ async function handleToggle(u){
     renderActivityRow(u); updateCardUI(u); renderPie(u);
     await setState(`activeact_${u}`, {activity:'📚 Studying',startedAt:now});
     await _sb.from('study_sessions').update({is_active:true,last_started_at:now}).eq('user_name',u);
+    renderStudyGraph();
   } else {
     const delta=Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000);
     const tot=delta>0?s.totalPastSeconds+delta:s.totalPastSeconds;
@@ -627,30 +780,62 @@ async function handleToggle(u){
       is_active:false,last_started_at:null,total_past_seconds:tot
     }).eq('user_name',u);
     if(delta>0) await _sb.from('study_history').insert([{user_name:u,duration_seconds:delta}]);
+    renderStudyGraph();
   }
 }
 
-async function resetDayCounters(){
-  if(!confirm("Reset today's timers, activity chart, and daily tasks? (Current status is kept)"))return;
+// ════════════════════════════════
+// DAILY RESET — now automatic at midnight, no manual button
+// ════════════════════════════════
+async function performDailyReset(){
   const now=new Date().toISOString();
   for(const u of ['Vedant','Girlfriend']){
-    dbState[u]={isActive:false,lastStartedAt:null,totalPastSeconds:0};
-    activityLog[u]=[]; dailyTodos[u]=[];
-    // keep whatever status is currently set (e.g. Sleeping overnight) — just restart
-    // its clock so the new day's tracking starts fresh instead of carrying over seconds
-    if(activeActivity[u]&&activeActivity[u].activity){
-      activeActivity[u]={activity:activeActivity[u].activity,startedAt:now};
-    } else {
-      activeActivity[u]=null;
+    const s=dbState[u];
+    // flush any studying time from just before the reset so it isn't lost from history
+    if(s.isActive&&s.lastStartedAt){
+      const delta=Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000);
+      if(delta>0) await _sb.from('study_history').insert([{user_name:u,duration_seconds:delta}]);
     }
+    // flush any unlogged non-study activity time
+    if(activeActivity[u]&&activeActivity[u].activity){
+      const prev=activeActivity[u];
+      const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
+      if(secs>30) activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:now,seconds:secs});
+    }
+    const wasStudying=s.isActive;
+    const carryActivity=activeActivity[u]?activeActivity[u].activity:null;
+    dbState[u]={isActive:wasStudying,lastStartedAt:wasStudying?now:null,totalPastSeconds:0};
+    activityLog[u]=[]; dailyTodos[u]=[];
+    // keep whatever status is currently set (e.g. Sleeping overnight, or an active study session)
+    // running — just restart its clock so the new day's tracking starts fresh
+    activeActivity[u]=carryActivity?{activity:carryActivity,startedAt:now}:null;
     updateCardUI(u); renderActivityRow(u); renderDaily(u); renderPie(u);
     await setState(`actlog_${u}`, []);
     await setState(`daily_${u}`, []);
     await setState(`activeact_${u}`, activeActivity[u]);
+    await _sb.from('study_sessions').update({
+      is_active:dbState[u].isActive, last_started_at:dbState[u].lastStartedAt, total_past_seconds:0
+    }).eq('user_name',u);
   }
-  await _sb.from('study_sessions')
-    .update({is_active:false,last_started_at:null,total_past_seconds:0})
-    .neq('user_name','__impossible__');
+  await setState('last_reset_date', dstr(new Date()));
+  renderStudyGraph();
+}
+
+async function checkAndRunMissedReset(lastResetVal){
+  const today=dstr(new Date());
+  if(lastResetVal!==today) await performDailyReset();
+}
+
+function scheduleMidnightReset(){
+  function msUntilNextMidnight(){
+    const n=new Date();
+    const next=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1,0,0,5);
+    return next-n;
+  }
+  setTimeout(async function fire(){
+    await performDailyReset();
+    setInterval(performDailyReset,86400000);
+  }, msUntilNextMidnight());
 }
 
 // ════════════════════════════════
@@ -751,6 +936,57 @@ function renderPie(u){
 }
 
 // ════════════════════════════════
+// WEEKLY STUDY GRAPH — last 7 days, both users
+// ════════════════════════════════
+async function renderStudyGraph(){
+  const svg=document.getElementById('graph-svg');
+  if(!svg)return;
+  const days=[];
+  for(let i=6;i>=0;i--){ const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-i); days.push(d); }
+  const dayKeys=days.map(dstr);
+  const totals={ Vedant:{}, Girlfriend:{} };
+  dayKeys.forEach(k=>{ totals.Vedant[k]=0; totals.Girlfriend[k]=0; });
+
+  try{
+    const { data, error } = await _sb.from('study_history')
+      .select('user_name,duration_seconds,created_at')
+      .gte('created_at', days[0].toISOString());
+    if(!error && data){
+      data.forEach(row=>{
+        if(!row.created_at||!totals[row.user_name])return;
+        const k=dstr(new Date(row.created_at));
+        if(k in totals[row.user_name]) totals[row.user_name][k]+=row.duration_seconds||0;
+      });
+    }
+  }catch(e){ console.error('renderStudyGraph fetch failed',e); }
+
+  // today's bar mirrors the live pie-chart total (history only logs completed segments)
+  const todayKey=dayKeys[6];
+  ['Vedant','Girlfriend'].forEach(u=>{
+    let secs=dbState[u].totalPastSeconds;
+    if(dbState[u].isActive&&dbState[u].lastStartedAt)
+      secs+=Math.max(0,Math.floor((Date.now()-new Date(dbState[u].lastStartedAt).getTime())/1000));
+    totals[u][todayKey]=Math.max(totals[u][todayKey],secs);
+  });
+
+  const maxVal=Math.max(3600,...dayKeys.map(k=>Math.max(totals.Vedant[k],totals.Girlfriend[k])));
+  const W=340,H=100,padBottom=16,padTop=6,groupW=W/7;
+  let bars='';
+  dayKeys.forEach((k,i)=>{
+    const x0=i*groupW, bw=groupW*0.27, gapMid=groupW*0.08;
+    const usableH=H-padBottom-padTop, baseY=H-padBottom;
+    const vH=totals.Vedant[k]>0?Math.max(2,(totals.Vedant[k]/maxVal)*usableH):0;
+    const gH=totals.Girlfriend[k]>0?Math.max(2,(totals.Girlfriend[k]/maxVal)*usableH):0;
+    const vX=x0+groupW*0.16, gX=vX+bw+gapMid;
+    bars+=`<rect x="${vX.toFixed(1)}" y="${(baseY-vH).toFixed(1)}" width="${bw.toFixed(1)}" height="${vH.toFixed(1)}" rx="2" fill="#60a5fa" opacity="0.9"><title>Nightfury: ${fmtHM(totals.Vedant[k])}</title></rect>`;
+    bars+=`<rect x="${gX.toFixed(1)}" y="${(baseY-gH).toFixed(1)}" width="${bw.toFixed(1)}" height="${gH.toFixed(1)}" rx="2" fill="#f472b6" opacity="0.9"><title>Lightfury: ${fmtHM(totals.Girlfriend[k])}</title></rect>`;
+    const lbl=days[i].toLocaleDateString([],{weekday:'short'}).slice(0,1);
+    bars+=`<text x="${(x0+groupW/2).toFixed(1)}" y="${H-4}" font-size="8" fill="#475569" text-anchor="middle" font-family="Inter,sans-serif">${lbl}</text>`;
+  });
+  svg.innerHTML=bars;
+}
+
+// ════════════════════════════════
 // MASTER TODOS
 // ════════════════════════════════
 async function saveMasterTodos(u){ await setState(`master_${u}`, masterTodos[u]); }
@@ -808,8 +1044,24 @@ function renderModal(u){
 // ════════════════════════════════
 async function saveDailyTodos(u){ await setState(`daily_${u}`, dailyTodos[u]); }
 function toggleDailyTodo(u,id){
-  const t=dailyTodos[u].find(x=>x.id===id); if(t)t.done=!t.done;
-  renderDaily(u); saveDailyTodos(u);
+  const t=dailyTodos[u].find(x=>x.id===id); if(!t)return;
+  if(!t.done){
+    // mark done, animate it away, then actually remove the task from today's list
+    t.done=true;
+    renderDaily(u); saveDailyTodos(u);
+    if(currentModalUser===u) renderModal(u);
+    const el=document.querySelector(`#daily-${u} [data-daily-id="${id}"]`);
+    if(el) requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('dt-removing')));
+    setTimeout(()=>{
+      dailyTodos[u]=dailyTodos[u].filter(x=>x.id!==id);
+      renderDaily(u); saveDailyTodos(u);
+      if(currentModalUser===u) renderModal(u);
+    },420);
+  } else {
+    t.done=false;
+    renderDaily(u); saveDailyTodos(u);
+    if(currentModalUser===u) renderModal(u);
+  }
 }
 function deleteDailyTodo(u,id){
   dailyTodos[u]=dailyTodos[u].filter(x=>x.id!==id);
@@ -821,7 +1073,7 @@ function renderDaily(u){
   const isV=u==='Vedant'; const color=isV?'#2563eb':'#db2777';
   if(!dailyTodos[u].length){c.innerHTML='<div class="empty-state">No tasks added yet</div>';return;}
   c.innerHTML=[...dailyTodos[u]].sort((a,b)=>a.done-b.done).map(t=>`
-    <div class="dt-item">
+    <div class="dt-item" data-daily-id="${t.id}">
       <button class="dt-check ${t.done?(isV?'done-v':'done-g'):''}"
         style="${t.done?`background:${color};border-color:${color}`:''}"
         onclick="toggleDailyTodo('${u}','${t.id}')">
@@ -851,7 +1103,10 @@ function closeModal(){
   document.body.style.overflow=''; currentModalUser=null;
 }
 function handleOverlayClick(e){ if(e.target===document.getElementById('modal-overlay')) closeModal(); }
-document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Escape')return;
+  closeModal(); closeNoteCompose(); closeNotePopup();
+});
 
 // ════════════════════════════════
 // UCEED 2027 COUNTDOWN
@@ -873,6 +1128,154 @@ document.addEventListener('keydown',e=>{ if(e.key==='Escape') closeModal(); });
   }
   update(); setInterval(update,60000);
 })();
+
+// ════════════════════════════════
+// DAYS TOGETHER
+// ════════════════════════════════
+(function daysTogether(){
+  const START=new Date('2024-10-06T00:00:00');
+  function update(){
+    const now=new Date();
+    const ms=now.setHours(0,0,0,0)-new Date(START).setHours(0,0,0,0);
+    const days=Math.floor(ms/86400000)+1; // count the start day itself as day 1
+    document.getElementById('together-days').textContent=days.toLocaleString()+' days';
+  }
+  update(); setInterval(update,60000);
+})();
+
+// ════════════════════════════════
+// PERIOD TRACKER — Lightfury
+// ════════════════════════════════
+let periodDates=[]; // array of 'YYYY-MM-DD' strings, the logged period-start days
+let periodViewDate=new Date(); periodViewDate.setDate(1);
+const DOW_LABELS=['S','M','T','W','T','F','S'];
+
+function dstr(d){ const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+
+function periodPredictNext(){
+  if(!periodDates.length) return null;
+  const sorted=[...periodDates].sort();
+  const last=new Date(sorted[sorted.length-1]+'T00:00:00');
+  if(sorted.length<2){
+    const d=new Date(last); d.setDate(d.getDate()+28); return {date:d,avg:28};
+  }
+  // average gap across the last up-to-6 recorded start dates
+  const recent=sorted.slice(-6).map(s=>new Date(s+'T00:00:00'));
+  let gaps=[];
+  for(let i=1;i<recent.length;i++) gaps.push(Math.round((recent[i]-recent[i-1])/86400000));
+  const avg=Math.round(gaps.reduce((a,b)=>a+b,0)/gaps.length);
+  const d=new Date(last); d.setDate(d.getDate()+avg);
+  return {date:d,avg};
+}
+
+async function savePeriodDates(){ await setState('period_Girlfriend', periodDates); }
+
+function periodShiftMonth(dir){
+  periodViewDate.setMonth(periodViewDate.getMonth()+dir);
+  renderPeriodTracker();
+}
+
+async function togglePeriodDay(dateStr){
+  const idx=periodDates.indexOf(dateStr);
+  if(idx>=0) periodDates.splice(idx,1);
+  else periodDates.push(dateStr);
+  renderPeriodTracker();
+  await savePeriodDates();
+}
+
+function renderPeriodTracker(){
+  const dowRow=document.getElementById('period-dow-row');
+  if(dowRow&&!dowRow.dataset.built){
+    dowRow.innerHTML=DOW_LABELS.map(l=>`<div class="period-dow">${l}</div>`).join('');
+    dowRow.dataset.built='1';
+  }
+  const y=periodViewDate.getFullYear(), m=periodViewDate.getMonth();
+  document.getElementById('period-month-lbl').textContent=periodViewDate.toLocaleDateString([],{month:'long',year:'numeric'});
+
+  const prediction=periodPredictNext();
+  const todayStr=dstr(new Date());
+  const predictedStr=prediction?dstr(prediction.date):null;
+
+  if(prediction){
+    document.getElementById('period-next-date').textContent=prediction.date.toLocaleDateString([],{month:'short',day:'numeric'});
+    const daysAway=Math.round((prediction.date.setHours(0,0,0,0)-new Date().setHours(0,0,0,0))/86400000);
+    document.getElementById('period-days-away').textContent=daysAway>=0?daysAway:`${Math.abs(daysAway)}d late`;
+    document.getElementById('period-avg-cycle').textContent=periodDates.length>1?`${prediction.avg}d`:'—';
+  } else {
+    document.getElementById('period-next-date').textContent='—';
+    document.getElementById('period-days-away').textContent='—';
+    document.getElementById('period-avg-cycle').textContent='—';
+  }
+
+  const firstOfMonth=new Date(y,m,1);
+  const startOffset=firstOfMonth.getDay();
+  const daysInMonth=new Date(y,m+1,0).getDate();
+  const grid=document.getElementById('period-cal-grid');
+  let cells='';
+  for(let i=0;i<startOffset;i++) cells+=`<div class="period-day empty"></div>`;
+  for(let day=1;day<=daysInMonth;day++){
+    const d=new Date(y,m,day);
+    const ds=dstr(d);
+    let cls='period-day';
+    if(periodDates.includes(ds)) cls+=' is-period';
+    if(predictedStr===ds) cls+=' is-predicted';
+    if(ds===todayStr) cls+=' is-today';
+    cells+=`<div class="${cls}" onclick="togglePeriodDay('${ds}')">${day}</div>`;
+  }
+  grid.innerHTML=cells;
+}
+
+// ════════════════════════════════
+// SEND A NOTE — pops up for the other person
+// ════════════════════════════════
+const OTHER_USER={ Vedant:'Girlfriend', Girlfriend:'Vedant' };
+const USER_DISPLAY={ Vedant:'Nightfury ⚡', Girlfriend:'Lightfury 🌸' };
+let noteComposeSender=null;
+let lastSentNoteId={ note_for_Vedant:null, note_for_Girlfriend:null };
+let dismissedNoteId={ note_for_Vedant:null, note_for_Girlfriend:null };
+let currentPopupNote=null; // {key,id}
+
+function openNoteCompose(sender){
+  noteComposeSender=sender;
+  const target=OTHER_USER[sender];
+  document.getElementById('note-compose-title').textContent=`Send a note to ${USER_DISPLAY[target]}`;
+  document.getElementById('note-compose-send').className=`btn ${sender==='Vedant'?'btn-add-v':'btn-add-g'}`;
+  document.getElementById('note-compose-text').value='';
+  document.getElementById('note-compose-overlay').classList.add('open');
+  setTimeout(()=>document.getElementById('note-compose-text').focus(),200);
+}
+function closeNoteCompose(){
+  document.getElementById('note-compose-overlay').classList.remove('open');
+  noteComposeSender=null;
+}
+async function sendNote(){
+  const text=document.getElementById('note-compose-text').value.trim();
+  if(!text||!noteComposeSender)return;
+  const sender=noteComposeSender;
+  const target=OTHER_USER[sender];
+  const key=`note_for_${target}`;
+  const id=uid();
+  lastSentNoteId[key]=id; // so this same device doesn't pop its own note up
+  closeNoteCompose();
+  await setState(key,{text,from:sender,id,ts:new Date().toISOString()});
+}
+function showNotePopup(fromUser,text,key,id){
+  if(dismissedNoteId[key]===id) return; // already read this exact note — don't show it again
+  currentPopupNote={key,id};
+  document.getElementById('note-popup-from').textContent=`💌 From ${USER_DISPLAY[fromUser]}`;
+  document.getElementById('note-popup-from').style.color=fromUser==='Vedant'?'#60a5fa':'#f472b6';
+  document.getElementById('note-popup-text').textContent=text;
+  document.getElementById('note-popup-overlay').classList.add('open');
+}
+async function closeNotePopup(){
+  document.getElementById('note-popup-overlay').classList.remove('open');
+  if(currentPopupNote){
+    const {key,id}=currentPopupNote;
+    dismissedNoteId[key]=id; // remembered for this session, in case the clear below is slow/fails
+    currentPopupNote=null;
+    await setState(key,null); // clear it so it can't pop up again on reload or the next poll
+  }
+}
 
 // ════════════════════════════════
 // REALTIME SUBSCRIPTIONS — instant cross-device sync
@@ -904,29 +1307,45 @@ function setupRealtime(){
 // BOOT — fetch everything once, then Realtime takes over
 // ════════════════════════════════
 async function init(){
+  // 0. Render static widgets that don't need network data first
+  renderPeriodTracker();
+
   // 1. Sessions
   await fetchSessions();
 
   // 2. Fetch ALL app_state rows (avoids missing keys that haven't been created yet)
   const { data: stateRows, error: stateErr } = await _sb.from('app_state').select('key,value');
   if(stateErr) console.error('init fetch error', stateErr);
+  let lastResetVal=null;
   if(stateRows){
-    stateRows.forEach(r => applyAppStateRow(r.key, r.value));
+    stateRows.forEach(r => {
+      if(r.key==='last_reset_date'){ try{ lastResetVal=JSON.parse(r.value); }catch(e){} }
+      applyAppStateRow(r.key, r.value);
+    });
   }
 
-  // 3. Wire up Realtime — all subsequent changes arrive via subscriptions
+  // 3. If the day rolled over while nobody had the app open, catch up now,
+  //    then keep an in-page timer so an open tab also resets right at midnight
+  await checkAndRunMissedReset(lastResetVal);
+  scheduleMidnightReset();
+
+  // 4. Wire up Realtime — all subsequent changes arrive via subscriptions
   setupRealtime();
 
-  // 4. Render pies with initial data
+  // 5. Render pies + weekly graph with initial data
   ['Vedant','Girlfriend'].forEach(renderPie);
+  renderStudyGraph();
 
-  // 5. Light fallback poll every 30s in case Realtime drops
+  // 6. Light fallback poll every 30s in case Realtime drops
   setInterval(async()=>{
     const { data } = await _sb.from('app_state').select('key,value');
     if(data) data.forEach(r => applyAppStateRow(r.key, r.value));
     await fetchSessions();
     ['Vedant','Girlfriend'].forEach(renderPie);
   }, 30000);
+
+  // 7. Refresh the weekly graph periodically too (less often, it changes slowly)
+  setInterval(renderStudyGraph, 120000);
 }
 
 init();
