@@ -1044,24 +1044,9 @@ function renderModal(u){
 // ════════════════════════════════
 async function saveDailyTodos(u){ await setState(`daily_${u}`, dailyTodos[u]); }
 function toggleDailyTodo(u,id){
-  const t=dailyTodos[u].find(x=>x.id===id); if(!t)return;
-  if(!t.done){
-    // mark done, animate it away, then actually remove the task from today's list
-    t.done=true;
-    renderDaily(u); saveDailyTodos(u);
-    if(currentModalUser===u) renderModal(u);
-    const el=document.querySelector(`#daily-${u} [data-daily-id="${id}"]`);
-    if(el) requestAnimationFrame(()=>requestAnimationFrame(()=>el.classList.add('dt-removing')));
-    setTimeout(()=>{
-      dailyTodos[u]=dailyTodos[u].filter(x=>x.id!==id);
-      renderDaily(u); saveDailyTodos(u);
-      if(currentModalUser===u) renderModal(u);
-    },420);
-  } else {
-    t.done=false;
-    renderDaily(u); saveDailyTodos(u);
-    if(currentModalUser===u) renderModal(u);
-  }
+  const t=dailyTodos[u].find(x=>x.id===id); if(t)t.done=!t.done;
+  renderDaily(u); saveDailyTodos(u);
+  if(currentModalUser===u) renderModal(u);
 }
 function deleteDailyTodo(u,id){
   dailyTodos[u]=dailyTodos[u].filter(x=>x.id!==id);
