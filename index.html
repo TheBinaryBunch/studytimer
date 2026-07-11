@@ -112,6 +112,23 @@ input[type=text]::placeholder{color:#4b6175;}
 .legend-name{font-size:10px;color:#64748b;flex:1;}
 .legend-time{font-size:10px;font-weight:600;color:#64748b;font-family:'JetBrains Mono',monospace;}
 
+/* ════ DOCK MODE ════ */
+.btn-dock{background:#172033;border:1px solid #334155;color:#94a3b8;height:24px;padding:0 9px;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;display:flex;align-items:center;gap:4px;line-height:1;transition:all .15s;white-space:nowrap;}
+.btn-dock:hover{border-color:#818cf8;color:#c7d2fe;background:#1e2740;}
+.dock-overlay{position:fixed;inset:0;background:#000;z-index:300;display:flex;flex-direction:column;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s;}
+.dock-overlay.open{opacity:1;pointer-events:all;}
+.dock-exit{position:absolute;top:22px;right:22px;background:transparent;border:1px solid #1e293b;color:#334155;width:38px;height:38px;border-radius:10px;font-size:16px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .15s;}
+.dock-exit:hover{border-color:#64748b;color:#94a3b8;}
+.dock-name{font-size:15px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;margin-bottom:18px;}
+.dock-name.v{color:#3b82f6;} .dock-name.g{color:#ec4899;}
+.dock-timer{font-size:min(18vw,110px);font-weight:800;font-family:'JetBrains Mono',monospace;color:#f1f5f9;line-height:1;letter-spacing:.02em;margin-bottom:36px;font-variant-numeric:tabular-nums;}
+.dock-status{font-size:12px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#334155;margin-bottom:28px;}
+.dock-status.live{color:#22c55e;}
+.dock-btn{border:none;padding:16px 44px;font-size:15px;font-weight:800;border-radius:16px;cursor:pointer;letter-spacing:.02em;transition:filter .15s;}
+.dock-btn:hover{filter:brightness(1.15);}
+.dock-btn.v{background:linear-gradient(90deg,#3b82f6,#60a5fa);color:#04101f;}
+.dock-btn.g{background:linear-gradient(90deg,#db2777,#f472b6);color:#1a0510;}
+
 /* ════ WEEKLY STUDY GRAPH ════ */
 .graph-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 14px 8px;margin-bottom:14px;}
 .graph-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
@@ -171,7 +188,7 @@ input[type=text]::placeholder{color:#4b6175;}
 .note-compose textarea{background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:10px;padding:10px 13px;font-size:14px;font-family:'Inter',sans-serif;outline:none;width:100%;resize:none;height:80px;transition:border-color .15s;}
 .note-compose textarea:focus{border-color:#6366f1;}
 .note-compose-actions{display:flex;gap:8px;margin-top:12px;justify-content:flex-end;}
-.note-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:200;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:20px;}
+.note-popup-overlay{position:fixed;inset:0;background:rgba(0,0,0,.75);z-index:400;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .25s;padding:20px;}
 .note-popup-overlay.open{opacity:1;pointer-events:all;}
 .note-popup{background:#0f172a;border:1px solid #334155;border-radius:22px;max-width:360px;width:100%;padding:26px 22px;text-align:center;transform:scale(.85) translateY(10px);transition:transform .3s cubic-bezier(.25,1.4,.4,1);box-shadow:0 20px 60px rgba(0,0,0,.6);}
 .note-popup-overlay.open .note-popup{transform:scale(1) translateY(0);}
@@ -179,6 +196,9 @@ input[type=text]::placeholder{color:#4b6175;}
 .note-popup-from{font-size:12px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:10px;}
 .note-popup-text{font-size:16px;font-weight:600;color:#e2e8f0;line-height:1.5;white-space:pre-wrap;word-break:break-word;margin-bottom:18px;}
 .note-popup-close{background:linear-gradient(90deg,#60a5fa,#f472b6);border:none;color:#0f172a;font-weight:800;width:46px;height:46px;border-radius:50%;cursor:pointer;font-size:18px;display:inline-flex;align-items:center;justify-content:center;}
+.note-popup-actions{display:flex;align-items:center;justify-content:center;gap:14px;}
+.note-popup-unread{background:transparent;border:1px solid #334155;color:#64748b;font-size:11px;font-weight:600;padding:0 16px;height:46px;border-radius:14px;cursor:pointer;letter-spacing:.02em;transition:all .15s;}
+.note-popup-unread:hover{border-color:#64748b;color:#94a3b8;}
 
 /* ════ PERIOD TRACKER ════ */
 .period-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 14px;margin-bottom:14px;}
@@ -268,6 +288,7 @@ input[type=text]::placeholder{color:#4b6175;}
         </div>
       </div>
       <div class="header-right">
+        <button class="btn-dock" onclick="openDockMode('Vedant')" title="Dock mode">⛶ Dock</button>
         <div id="time-Vedant" class="study-timer">00:00:00</div>
       </div>
     </div>
@@ -331,6 +352,7 @@ input[type=text]::placeholder{color:#4b6175;}
         </div>
       </div>
       <div class="header-right">
+        <button class="btn-dock" onclick="openDockMode('Girlfriend')" title="Dock mode">⛶ Dock</button>
         <div id="time-Girlfriend" class="study-timer">00:00:00</div>
       </div>
     </div>
@@ -514,8 +536,20 @@ input[type=text]::placeholder{color:#4b6175;}
     <div class="note-popup-icon">💌</div>
     <div class="note-popup-from" id="note-popup-from"></div>
     <div class="note-popup-text" id="note-popup-text"></div>
-    <button class="note-popup-close" onclick="closeNotePopup()">❤️</button>
+    <div class="note-popup-actions">
+      <button class="note-popup-unread" onclick="leaveNoteUnread()">Leave on unread</button>
+      <button class="note-popup-close" onclick="closeNotePopup()">❤️</button>
+    </div>
   </div>
+</div>
+
+<!-- ════ DOCK MODE ════ -->
+<div id="dock-overlay" class="dock-overlay">
+  <button class="dock-exit" onclick="closeDockMode()">✕</button>
+  <div class="dock-name" id="dock-name">—</div>
+  <div class="dock-timer" id="dock-timer">00:00:00</div>
+  <div class="dock-status" id="dock-status">Offline</div>
+  <button class="dock-btn" id="dock-btn" onclick="dockToggle()">▶ Start</button>
 </div>
 
 <script>
@@ -598,6 +632,8 @@ setInterval(()=>{
     // keep the pie chart + legend numbers ticking in sync with the header timer,
     // instead of only refreshing on activity/log changes (was causing graph vs list drift)
     if(s.isActive||act) renderPie(u);
+
+    if(dockUser===u) renderDockMode();
   });
 },1000);
 
@@ -1090,7 +1126,7 @@ function closeModal(){
 function handleOverlayClick(e){ if(e.target===document.getElementById('modal-overlay')) closeModal(); }
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape')return;
-  closeModal(); closeNoteCompose(); closeNotePopup();
+  closeModal(); closeNoteCompose(); closeNotePopup(); closeDockMode();
 });
 
 // ════════════════════════════════
@@ -1260,6 +1296,52 @@ async function closeNotePopup(){
     currentPopupNote=null;
     await setState(key,null); // clear it so it can't pop up again on reload or the next poll
   }
+}
+function leaveNoteUnread(){
+  // just hide it for now — don't clear the note or mark it dismissed, so it pops back up
+  // on the next poll / realtime refresh / page reload, for either device to catch later
+  document.getElementById('note-popup-overlay').classList.remove('open');
+  currentPopupNote=null;
+}
+
+// ════════════════════════════════
+// DOCK MODE — fullscreen, distraction-free timer for one person
+// ════════════════════════════════
+let dockUser=null;
+function openDockMode(u){
+  dockUser=u;
+  document.getElementById('dock-overlay').classList.add('open');
+  renderDockMode();
+}
+function closeDockMode(){
+  document.getElementById('dock-overlay').classList.remove('open');
+  dockUser=null;
+}
+async function dockToggle(){
+  if(!dockUser)return;
+  await handleToggle(dockUser);
+  renderDockMode();
+}
+function renderDockMode(){
+  const u=dockUser; if(!u)return;
+  const isV=u==='Vedant';
+  const s=dbState[u];
+  let secs=s.totalPastSeconds;
+  if(s.isActive&&s.lastStartedAt) secs+=Math.max(0,Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000));
+
+  const nameEl=document.getElementById('dock-name');
+  nameEl.textContent=isV?'Nightfury':'Lightfury';
+  nameEl.className='dock-name '+(isV?'v':'g');
+
+  document.getElementById('dock-timer').textContent=fmtTime(secs);
+
+  const statusEl=document.getElementById('dock-status');
+  statusEl.textContent=s.isActive?'Studying Live':'Paused';
+  statusEl.className='dock-status'+(s.isActive?' live':'');
+
+  const btn=document.getElementById('dock-btn');
+  btn.textContent=s.isActive?'⏸ Pause':'▶ Continue';
+  btn.className='dock-btn '+(isV?'v':'g');
 }
 
 // ════════════════════════════════
