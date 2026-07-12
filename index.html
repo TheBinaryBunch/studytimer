@@ -225,6 +225,15 @@ input[type=text]::placeholder{color:#4b6175;}
 .period-legend-item{display:flex;align-items:center;gap:4px;font-size:9px;color:#64748b;}
 .period-legend-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;}
 
+/* ════ YOU TAG + STREAK BADGE ════ */
+.you-tag{font-size:9px;font-weight:800;color:#475569;margin-left:6px;letter-spacing:.08em;vertical-align:middle;}
+.streak-badge{display:none;align-items:center;gap:3px;font-size:10px;font-weight:800;color:#fbbf24;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.35);border-radius:20px;padding:2px 8px;margin-top:5px;letter-spacing:.02em;width:fit-content;}
+
+/* ════ IDENTITY OVERLAY (device selection) ════ */
+.identity-name{font-size:14px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#94a3b8;margin-bottom:24px;text-align:center;padding:0 30px;}
+.identity-choices{display:flex;gap:14px;}
+.identity-note{margin-top:20px;font-size:11px;color:#475569;max-width:270px;text-align:center;padding:0 20px;line-height:1.5;}
+
 /* ── animations ── */
 @keyframes slideUp{from{opacity:0;transform:translateY(4px);}to{opacity:1;transform:translateY(0);}}
 .slide-up{animation:slideUp .15s ease;}
@@ -261,8 +270,9 @@ input[type=text]::placeholder{color:#4b6175;}
 <div class="page">
 
   <!-- header -->
-  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;">
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:18px;gap:10px;">
     <h1 style="font-size:20px;font-weight:800;background:linear-gradient(90deg,#60a5fa,#a78bfa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;letter-spacing:-.01em;">Our Study Space 🌌</h1>
+    <button class="btn-dock" onclick="openIdentityPicker()" title="Switch device identity">🪪 <span id="identity-label">Set device</span></button>
   </div>
 
   <!-- ════ DAYS TOGETHER ════ -->
@@ -282,10 +292,11 @@ input[type=text]::placeholder{color:#4b6175;}
   <div id="card-Vedant" class="card">
     <div class="card-header">
       <div>
-        <div class="user-name-v">Nightfury</div>
+        <div class="user-name-v">Nightfury<span id="you-tag-Vedant" class="you-tag"></span></div>
         <div id="status-Vedant" class="status-pill" style="margin-top:4px;">
           <span class="status-dot"></span><span id="status-txt-Vedant">Offline</span>
         </div>
+        <div id="streak-Vedant" class="streak-badge"></div>
       </div>
       <div class="header-right">
         <button class="btn-dock" onclick="openDockMode('Vedant')" title="Dock mode">⛶ Dock</button>
@@ -346,10 +357,11 @@ input[type=text]::placeholder{color:#4b6175;}
   <div id="card-Girlfriend" class="card">
     <div class="card-header">
       <div>
-        <div class="user-name-g">Lightfury</div>
+        <div class="user-name-g">Lightfury<span id="you-tag-Girlfriend" class="you-tag"></span></div>
         <div id="status-Girlfriend" class="status-pill" style="margin-top:4px;">
           <span class="status-dot"></span><span id="status-txt-Girlfriend">Offline</span>
         </div>
+        <div id="streak-Girlfriend" class="streak-badge"></div>
       </div>
       <div class="header-right">
         <button class="btn-dock" onclick="openDockMode('Girlfriend')" title="Dock mode">⛶ Dock</button>
@@ -447,7 +459,7 @@ input[type=text]::placeholder{color:#4b6175;}
         <span class="graph-legend-item"><span class="graph-legend-dot" style="background:#f472b6;"></span>Lightfury</span>
       </div>
     </div>
-    <svg id="graph-svg" viewBox="0 0 340 100" preserveAspectRatio="none"></svg>
+    <svg id="graph-svg" viewBox="0 0 340 100"></svg>
   </div>
 
   <!-- ════ UCEED 2027 COUNTDOWN ════ -->
@@ -552,6 +564,17 @@ input[type=text]::placeholder{color:#4b6175;}
   <button class="dock-btn" id="dock-btn" onclick="dockToggle()">▶ Start</button>
 </div>
 
+<!-- ════ DEVICE IDENTITY OVERLAY ════ -->
+<div id="identity-overlay" class="dock-overlay" style="z-index:500;">
+  <button class="dock-exit" id="identity-close-btn" onclick="closeIdentityPicker()" style="display:none;">✕</button>
+  <div class="identity-name">Who's using this device?</div>
+  <div class="identity-choices">
+    <button class="dock-btn v" onclick="chooseIdentity('Vedant')">⚡ Nightfury</button>
+    <button class="dock-btn g" onclick="chooseIdentity('Girlfriend')">🌸 Lightfury</button>
+  </div>
+  <div class="identity-note">This just tells the app who's on this phone/laptop, so notes go to the right person and your status updates are labeled correctly. You can switch it anytime from the 🪪 button up top.</div>
+</div>
+
 <script>
 // ════════════════════════════════
 // SUPABASE — with Realtime enabled
@@ -563,18 +586,36 @@ const _sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
 });
 
 // ════════════════════════════════
-// STATE — all sourced from Supabase, nothing from localStorage
+// STATE
 // ════════════════════════════════
-let dbState = {
-  Vedant:    { isActive:false, lastStartedAt:null, totalPastSeconds:0 },
-  Girlfriend:{ isActive:false, lastStartedAt:null, totalPastSeconds:0 }
-};
+// Device identity — the ONE thing that lives in localStorage. Everything
+// study/status/todo related still lives in Supabase; this just tells this
+// particular phone/laptop which of the two people is using it, so notes and
+// popups go to the right place. Nothing else is ever read from localStorage.
+let IDENTITY = null; // 'Vedant' | 'Girlfriend' | null
+const USERS = ['Vedant','Girlfriend'];
+const STUDY_ACT = '📚 Studying';
+const STREAK_SECONDS = 4.5*3600; // 16200 — daily study threshold for the streak badge
+
 let masterTodos  = { Vedant:[], Girlfriend:[] };
-let dailyTodos   = { Vedant:[], Girlfriend:[] };
-// activeActivity[u] = {activity, startedAt} | null
-let activeActivity = { Vedant:null, Girlfriend:null };
-// activityLog[u] = [{activity,startedAt,endedAt,seconds}]
-let activityLog  = { Vedant:[], Girlfriend:[] };
+// liveStatus[u] = { activity: string|null, segment_start: iso string|null }
+// mirrors the `user_status` table — the single source of truth for "what is
+// this person doing right now", independent of which calendar/app day it is.
+let liveStatus = {
+  Vedant:    { activity:null, segment_start:null },
+  Girlfriend:{ activity:null, segment_start:null }
+};
+// todayData[u] = { study_seconds, activity_seconds:{act:secs}, daily_todos:[] }
+// — this is exactly (and only) the row for the CURRENT app-day in `day_data`.
+let todayData = {
+  Vedant:    { study_seconds:0, activity_seconds:{}, daily_todos:[] },
+  Girlfriend:{ study_seconds:0, activity_seconds:{}, daily_todos:[] }
+};
+// historyData[u][dayKey] = study_seconds for that app-day (last ~30 days), used
+// for the weekly graph and the streak badge. Every day's entry is that day's
+// own row — nothing is ever copied, carried over, or zeroed out client-side.
+let historyData = { Vedant:{}, Girlfriend:{} };
+let currentDayKey = null;
 let currentModalUser = null;
 
 const ACT_COLORS = {
@@ -610,50 +651,101 @@ function fmtElapsed(ms){
   return h>0?`${h}h ${m%60}m`:`${m}m`;
 }
 function todayStart(){ const d=new Date(); d.setHours(0,0,0,0); return d; }
+function dstr(d){ const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
+function daysAgoDate(n){ const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-n); return d; }
+
+// ════════════════════════════════
+// APP-DAY BOUNDARY — a "day" starts at 1:30 AM, not midnight.
+// 12:45 AM still belongs to the previous app-day; 1:31 AM belongs to the new one.
+// This is the ONLY definition of "day" anywhere in the app (storage, display,
+// graph, streak) — there is no separate calendar-day logic to drift out of sync.
+// ════════════════════════════════
+function appDayKey(d=new Date()){
+  const dt=new Date(d);
+  if(dt.getHours()<1||(dt.getHours()===1&&dt.getMinutes()<30)) dt.setDate(dt.getDate()-1);
+  return dstr(dt);
+}
+function appDayBoundary(dayKey){
+  // the exact instant (as a local Date) that dayKey's app-day begins: 1:30 AM
+  const [y,m,day]=dayKey.split('-').map(Number);
+  return new Date(y,m-1,day,1,30,0,0);
+}
+
+// ════════════════════════════════
+// LIVE TOTALS — combine the stored (flushed) total for today with whatever
+// portion of the currently-running segment falls within today's boundary.
+// This is what makes the header timer / pie / graph accurate to the second
+// WITHOUT needing a client-driven "reset" — a new day's numbers are just the
+// (still-empty, until written) row for that day's key.
+// ════════════════════════════════
+function liveStudySecondsToday(u){
+  let secs = todayData[u]?.study_seconds || 0;
+  const ls = liveStatus[u];
+  if(ls && ls.activity===STUDY_ACT && ls.segment_start){
+    const boundary=appDayBoundary(currentDayKey);
+    const start=new Date(ls.segment_start);
+    const effStart = start>boundary ? start : boundary;
+    const now=new Date();
+    if(now>effStart) secs += Math.floor((now-effStart)/1000);
+  }
+  return secs;
+}
+function buildAgg(u){
+  const agg = { ...(todayData[u]?.activity_seconds||{}) };
+  const ls = liveStatus[u];
+  if(ls && ls.activity && ls.activity!==STUDY_ACT && ls.segment_start){
+    const boundary=appDayBoundary(currentDayKey);
+    const start=new Date(ls.segment_start);
+    const effStart = start>boundary ? start : boundary;
+    const now=new Date();
+    if(now>effStart){
+      const live=Math.floor((now-effStart)/1000);
+      if(live>0) agg[ls.activity]=(agg[ls.activity]||0)+live;
+    }
+  }
+  agg[STUDY_ACT]=liveStudySecondsToday(u);
+  return agg;
+}
 
 // ════════════════════════════════
 // SECOND TICK — pure local, no network
 // ════════════════════════════════
 setInterval(()=>{
-  ['Vedant','Girlfriend'].forEach(u=>{
-    const s=dbState[u]; let secs=s.totalPastSeconds;
-    if(s.isActive&&s.lastStartedAt)
-      secs+=Math.max(0,Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000));
-    document.getElementById(`time-${u}`).textContent=fmtTime(secs);
+  USERS.forEach(u=>{
+    document.getElementById(`time-${u}`).textContent=fmtTime(liveStudySecondsToday(u));
 
-    const act=activeActivity[u];
+    const ls=liveStatus[u];
     const elEl=document.getElementById(`aelapsed-${u}`);
-    if(act&&act.startedAt){
-      elEl.textContent=fmtElapsed(Date.now()-new Date(act.startedAt).getTime());
+    if(ls&&ls.activity&&ls.segment_start){
+      elEl.textContent=fmtElapsed(Date.now()-new Date(ls.segment_start).getTime());
       elEl.className='activity-elapsed live';
     } else {
       elEl.textContent=''; elEl.className='activity-elapsed';
     }
-    // keep the pie chart + legend numbers ticking in sync with the header timer,
-    // instead of only refreshing on activity/log changes (was causing graph vs list drift)
-    if(s.isActive||act) renderPie(u);
+    if(ls&&ls.activity) renderPie(u);
 
     if(dockUser===u) renderDockMode();
   });
+  updateAllStreakBadges();
 },1000);
 
 // ════════════════════════════════
 // RENDER — activity row + card UI
 // ════════════════════════════════
 function renderActivityRow(u){
-  const act=activeActivity[u];
+  const ls=liveStatus[u]||{};
   const iconEl=document.getElementById(`aicon-${u}`);
   const nameEl=document.getElementById(`aname-${u}`);
   const clearEl=document.getElementById(`aclear-${u}`);
   const chipsEl=document.getElementById(`chips-${u}`);
-  if(act&&act.activity){
-    iconEl.textContent=actEmoji(act.activity);
-    nameEl.textContent=act.activity;
+  if(ls.activity){
+    iconEl.textContent=actEmoji(ls.activity);
+    nameEl.textContent=ls.activity;
     nameEl.className='activity-name';
     clearEl.style.display='block';
     chipsEl.querySelectorAll('.chip').forEach(c=>{
       c.classList.remove('chip-active-v','chip-active-g');
-      if(c.textContent.trim().startsWith(actEmoji(act.activity)))
+      if(c.textContent.trim().startsWith(actEmoji(ls.activity)))
         c.classList.add(u==='Vedant'?'chip-active-v':'chip-active-g');
     });
   } else {
@@ -666,27 +758,27 @@ function renderActivityRow(u){
 }
 
 function updateCardUI(u){
-  const s=dbState[u];
+  const ls=liveStatus[u]||{};
   const card=document.getElementById(`card-${u}`);
   const statusPill=document.getElementById(`status-${u}`);
   const statusTxt=document.getElementById(`status-txt-${u}`);
   const btn=document.getElementById(`btn-${u}`);
   const isV=u==='Vedant';
-  const act=activeActivity[u];
-  if(s.isActive){
+  const isStudying=ls.activity===STUDY_ACT;
+  if(isStudying){
     statusPill.className='status-pill live';
     statusTxt.textContent='Studying Live';
     card.className='card '+(isV?'active-v':'active-g');
-  } else if(act&&act.activity){
+  } else if(ls.activity){
     statusPill.className='status-pill live';
-    statusTxt.textContent=act.activity.replace(/^\S+\s/,''); // strip emoji
+    statusTxt.textContent=ls.activity.replace(/^\S+\s/,''); // strip emoji
     card.className='card';
   } else {
     statusPill.className='status-pill';
     statusTxt.textContent='Offline';
     card.className='card';
   }
-  if(s.isActive){
+  if(isStudying){
     btn.textContent='⏸ Pause Studying';
     btn.className=`btn ${isV?'btn-study-v':'btn-study-g'} active`;
   } else {
@@ -716,37 +808,14 @@ async function setState(key, value){
 
 // ════════════════════════════════
 // APPLY A ROW FROM app_state REALTIME EVENT OR INITIAL FETCH
+// (app_state now only holds things that are NOT day-scoped: master todo
+// lists, the period tracker, and in-flight notes)
 // ════════════════════════════════
 function applyAppStateRow(key, rawValue){
   let val;
   try { val = JSON.parse(rawValue); } catch(e){ val = null; }
-  const ts = todayStart();
 
-  if(key==='activeact_Vedant'||key==='activeact_Girlfriend'){
-    const u=key.replace('activeact_','');
-    if(val&&val.startedAt&&new Date(val.startedAt)>=ts){
-      activeActivity[u]={activity:val.activity,startedAt:val.startedAt};
-    } else {
-      activeActivity[u]=null;
-    }
-    renderActivityRow(u); updateCardUI(u); renderPie(u);
-
-  } else if(key==='actlog_Vedant'||key==='actlog_Girlfriend'){
-    const u=key.replace('actlog_','');
-    activityLog[u]=(val||[]).filter(e=>new Date(e.startedAt)>=ts);
-    renderPie(u);
-
-  } else if(key==='daily_Vedant'||key==='daily_Girlfriend'){
-    const u=key.replace('daily_','');
-    // IMPORTANT: keep all items that were added today OR have no addedAt (legacy)
-    dailyTodos[u]=(val||[]).filter(t=>{
-      if(!t.addedAt) return true; // no date = keep
-      return new Date(t.addedAt)>=ts;
-    });
-    renderDaily(u);
-    if(currentModalUser===u) renderModal(u);
-
-  } else if(key==='master_Vedant'||key==='master_Girlfriend'){
+  if(key==='master_Vedant'||key==='master_Girlfriend'){
     const u=key.replace('master_','');
     masterTodos[u]=val||[];
     if(currentModalUser===u) renderModal(u);
@@ -762,116 +831,115 @@ function applyAppStateRow(key, rawValue){
       lastSentNoteId[key]=null;
       return;
     }
+    const targetUser=key.replace('note_for_','');
+    // only pop up on the device this note is actually addressed to
+    if(IDENTITY && targetUser!==IDENTITY) return;
     showNotePopup(val.from,val.text,key,val.id);
   }
 }
 
 // ════════════════════════════════
-// STUDY SESSIONS
+// DAY DATA + LIVE STATUS — everything study/activity/todo related
 // ════════════════════════════════
-function applySessionRow(row){
-  const u=row.user_name;
-  dbState[u]={
-    isActive:row.is_active,
-    lastStartedAt:row.last_started_at,
-    totalPastSeconds:row.total_past_seconds
+// Applies one row of `day_data` (one user, one app-day) into local state.
+// A day that has never been written simply has no row — there is nothing to
+// "reset", so there is no way for it to be accidentally zeroed or mismatched.
+function applyDayDataRow(row){
+  if(!row||!row.user_name||!row.day_key) return;
+  historyData[row.user_name]=historyData[row.user_name]||{};
+  historyData[row.user_name][row.day_key]=row.study_seconds||0;
+  if(row.day_key===currentDayKey){
+    todayData[row.user_name]={
+      study_seconds: row.study_seconds||0,
+      activity_seconds: row.activity_seconds||{},
+      daily_todos: row.daily_todos||[]
+    };
+    renderDaily(row.user_name);
+    renderPie(row.user_name);
+    if(currentModalUser===row.user_name){ /* master list unaffected by day rows */ }
+  }
+  renderStudyGraph();
+  updateStreakBadge(row.user_name);
+}
+
+function applyUserStatusRow(row){
+  if(!row||!row.user_name) return;
+  liveStatus[row.user_name]={ activity: row.activity, segment_start: row.segment_start };
+  renderActivityRow(row.user_name);
+  updateCardUI(row.user_name);
+  renderPie(row.user_name);
+  if(dockUser===row.user_name) renderDockMode();
+}
+
+// Pulls the last 30 app-days of day_data for both users. Used at boot and
+// whenever we need a clean resync (e.g. right after the day rolls over).
+async function refreshDayData(){
+  const since=dstr(daysAgoDate(29));
+  const { data, error } = await _sb.from('day_data').select('*').gte('day_key', since);
+  if(error){ console.error('❌ refreshDayData failed:', error); return; }
+  historyData={ Vedant:{}, Girlfriend:{} };
+  todayData={
+    Vedant:    { study_seconds:0, activity_seconds:{}, daily_todos:[] },
+    Girlfriend:{ study_seconds:0, activity_seconds:{}, daily_todos:[] }
   };
-  updateCardUI(u); renderPie(u);
+  (data||[]).forEach(row=>{
+    historyData[row.user_name][row.day_key]=row.study_seconds||0;
+    if(row.day_key===currentDayKey){
+      todayData[row.user_name]={
+        study_seconds: row.study_seconds||0,
+        activity_seconds: row.activity_seconds||{},
+        daily_todos: row.daily_todos||[]
+      };
+    }
+  });
+  USERS.forEach(u=>{ renderDaily(u); renderPie(u); });
+  renderStudyGraph();
+  updateAllStreakBadges();
 }
 
-async function fetchSessions(){
-  const {data}=await _sb.from('study_sessions').select('*');
-  if(data) data.forEach(applySessionRow);
+// Asks the database to atomically close out whatever segment is currently
+// live for a user, splitting it across the 1:30 AM boundary if needed, and
+// adding each piece to the correct day's row. Safe to call from any number
+// of devices at once — the underlying function locks the row, so nobody can
+// double-count the same seconds.
+function flushSegment(u){
+  return _sb.rpc('flush_segment',{ p_user:u }).then(({error})=>{
+    if(error) console.error(`❌ flush_segment failed [${u}]:`,error.message);
+  });
 }
+function periodicFlush(){ USERS.forEach(flushSegment); }
 
-async function handleToggle(u){
-  const s=dbState[u]; const now=new Date().toISOString();
-  if(!s.isActive){
-    if(activeActivity[u]&&activeActivity[u].activity!=='📚 Studying'){
-      const prev=activeActivity[u];
-      const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
-      if(secs>30){
-        activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:now,seconds:secs});
-        await setState(`actlog_${u}`, activityLog[u]);
-      }
-    }
-    activeActivity[u]={activity:'📚 Studying',startedAt:now};
-    dbState[u].isActive=true; dbState[u].lastStartedAt=now;
-    renderActivityRow(u); updateCardUI(u); renderPie(u);
-    await setState(`activeact_${u}`, {activity:'📚 Studying',startedAt:now});
-    await _sb.from('study_sessions').update({is_active:true,last_started_at:now}).eq('user_name',u);
-    renderStudyGraph();
-  } else {
-    const delta=Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000);
-    const tot=delta>0?s.totalPastSeconds+delta:s.totalPastSeconds;
-    if(delta>0){
-      activityLog[u].push({activity:'📚 Studying',startedAt:s.lastStartedAt,endedAt:now,seconds:delta});
-      await setState(`actlog_${u}`, activityLog[u]);
-    }
-    activeActivity[u]=null;
-    dbState[u]={isActive:false,lastStartedAt:null,totalPastSeconds:tot};
-    renderActivityRow(u); updateCardUI(u); renderPie(u);
-    await setState(`activeact_${u}`, null);
-    await _sb.from('study_sessions').update({
-      is_active:false,last_started_at:null,total_past_seconds:tot
-    }).eq('user_name',u);
-    if(delta>0) await _sb.from('study_history').insert([{user_name:u,duration_seconds:delta}]);
-    renderStudyGraph();
-  }
-}
-
-// ════════════════════════════════
-// DAILY RESET — now automatic at midnight, no manual button
-// ════════════════════════════════
-async function performDailyReset(){
-  const now=new Date().toISOString();
-  for(const u of ['Vedant','Girlfriend']){
-    const s=dbState[u];
-    // flush any studying time from just before the reset so it isn't lost from history
-    if(s.isActive&&s.lastStartedAt){
-      const delta=Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000);
-      if(delta>0) await _sb.from('study_history').insert([{user_name:u,duration_seconds:delta}]);
-    }
-    // flush any unlogged non-study activity time
-    if(activeActivity[u]&&activeActivity[u].activity){
-      const prev=activeActivity[u];
-      const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
-      if(secs>30) activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:now,seconds:secs});
-    }
-    const wasStudying=s.isActive;
-    const carryActivity=activeActivity[u]?activeActivity[u].activity:null;
-    dbState[u]={isActive:wasStudying,lastStartedAt:wasStudying?now:null,totalPastSeconds:0};
-    activityLog[u]=[]; dailyTodos[u]=[];
-    // keep whatever status is currently set (e.g. Sleeping overnight, or an active study session)
-    // running — just restart its clock so the new day's tracking starts fresh
-    activeActivity[u]=carryActivity?{activity:carryActivity,startedAt:now}:null;
-    updateCardUI(u); renderActivityRow(u); renderDaily(u); renderPie(u);
-    await setState(`actlog_${u}`, []);
-    await setState(`daily_${u}`, []);
-    await setState(`activeact_${u}`, activeActivity[u]);
-    await _sb.from('study_sessions').update({
-      is_active:dbState[u].isActive, last_started_at:dbState[u].lastStartedAt, total_past_seconds:0
-    }).eq('user_name',u);
-  }
-  await setState('last_reset_date', dstr(new Date()));
+// Switches a user's live activity (studying / an activity chip / idle).
+// The RPC flushes the outgoing segment first, then starts the new one — both
+// inside a single locked transaction, so nothing gets lost or double-counted
+// even if another device does something at the same instant.
+async function setActivity(u, text){
+  // optimistic local update so the UI feels instant
+  liveStatus[u] = text ? { activity:text, segment_start:new Date().toISOString() } : { activity:null, segment_start:null };
+  renderActivityRow(u); updateCardUI(u); renderPie(u);
+  const { error } = await _sb.rpc('set_activity', { p_user:u, p_activity:text||null });
+  if(error) console.error(`❌ set_activity failed [${u}]:`,error.message);
   renderStudyGraph();
 }
-
-async function checkAndRunMissedReset(lastResetVal){
-  const today=dstr(new Date());
-  if(lastResetVal!==today) await performDailyReset();
+async function clearNowDoing(u){ await setActivity(u, null); }
+async function handleToggle(u){
+  const isStudying = liveStatus[u]?.activity===STUDY_ACT;
+  await setActivity(u, isStudying ? null : STUDY_ACT);
 }
 
-function scheduleMidnightReset(){
-  function msUntilNextMidnight(){
-    const n=new Date();
-    const next=new Date(n.getFullYear(),n.getMonth(),n.getDate()+1,0,0,5);
-    return next-n;
+// ════════════════════════════════
+// DAY ROLLOVER WATCH — passive only. No writes, no destructive reset.
+// A new app-day simply means a new (currently-empty) day_data row; we just
+// need to notice the key changed so the UI points at the right row and any
+// live segment gets flushed/split at the boundary.
+// ════════════════════════════════
+function checkDayRollover(){
+  const k=appDayKey(new Date());
+  if(k!==currentDayKey){
+    currentDayKey=k;
+    periodicFlush();
+    setTimeout(refreshDayData, 1500); // give the flush a moment to land
   }
-  setTimeout(async function fire(){
-    await performDailyReset();
-    setInterval(performDailyReset,86400000);
-  }, msUntilNextMidnight());
 }
 
 // ════════════════════════════════
@@ -888,51 +956,10 @@ function submitCustom(u){
   inp.value=''; document.getElementById(`custom-${u}`).classList.remove('show');
   setActivity(u,text);
 }
-async function setActivity(u, text){
-  if(activeActivity[u]){
-    const prev=activeActivity[u];
-    const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
-    if(secs>30){
-      activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:new Date().toISOString(),seconds:secs});
-      await setState(`actlog_${u}`, activityLog[u]);
-    }
-  }
-  const startedAt=new Date().toISOString();
-  activeActivity[u]={activity:text,startedAt};
-  renderActivityRow(u); updateCardUI(u); renderPie(u);
-  await setState(`activeact_${u}`, {activity:text,startedAt});
-}
-async function clearNowDoing(u){
-  if(activeActivity[u]){
-    const prev=activeActivity[u];
-    const secs=Math.floor((Date.now()-new Date(prev.startedAt).getTime())/1000);
-    if(secs>30){
-      activityLog[u].push({activity:prev.activity,startedAt:prev.startedAt,endedAt:new Date().toISOString(),seconds:secs});
-      await setState(`actlog_${u}`, activityLog[u]);
-    }
-    activeActivity[u]=null;
-  }
-  renderActivityRow(u); updateCardUI(u); renderPie(u);
-  await setState(`activeact_${u}`, null);
-}
 
 // ════════════════════════════════
 // PIE CHART
 // ════════════════════════════════
-function buildAgg(u){
-  const agg={};
-  activityLog[u].forEach(e=>{ agg[e.activity]=(agg[e.activity]||0)+e.seconds; });
-  if(activeActivity[u]){
-    const live=Math.max(0,Math.floor((Date.now()-new Date(activeActivity[u].startedAt).getTime())/1000));
-    if(live>0) agg[activeActivity[u].activity]=(agg[activeActivity[u].activity]||0)+live;
-  }
-  const sk='📚 Studying';
-  let studySecs=dbState[u].totalPastSeconds;
-  if(dbState[u].isActive&&dbState[u].lastStartedAt)
-    studySecs+=Math.floor((Date.now()-new Date(dbState[u].lastStartedAt).getTime())/1000);
-  if(studySecs>(agg[sk]||0)) agg[sk]=studySecs;
-  return agg;
-}
 function renderPie(u){
   const svgEl=document.getElementById(`pie-svg-${u}`);
   const pctEl=document.getElementById(`pie-pct-${u}`);
@@ -955,7 +982,7 @@ function renderPie(u){
     const ix2=cx+r*Math.cos(cumAngle+angle),iy2=cy+r*Math.sin(cumAngle+angle);
     const large=angle>Math.PI?1:0;
     const color=act==='__untracked__'?UNTRACKED_COLOR:actColor(act);
-    const isLive=activeActivity[u]&&activeActivity[u].activity===act;
+    const isLive=liveStatus[u]&&liveStatus[u].activity===act;
     paths+=`<path d="M${x1},${y1} A${R},${R},0,${large},1,${x2},${y2} L${ix2},${iy2} A${r},${r},0,${large},0,${ix1},${iy1} Z" fill="${color}" opacity="${act==='__untracked__'?1:0.88}" stroke="#030712" stroke-width="1"/>`;
     if(isLive){const mid=cumAngle+angle/2;paths+=`<circle cx="${cx+(R+5)*Math.cos(mid)}" cy="${cy+(R+5)*Math.sin(mid)}" r="2.5" fill="#34d399"/>`;}
     cumAngle+=angle;
@@ -963,7 +990,7 @@ function renderPie(u){
   svgEl.innerHTML=paths;
   legendEl.innerHTML=[
     ...entries.map(([act,secs])=>{
-      const isLive=activeActivity[u]&&activeActivity[u].activity===act;
+      const isLive=liveStatus[u]&&liveStatus[u].activity===act;
       return `<div class="legend-row"><div class="legend-dot" style="background:${actColor(act)};"></div><span class="legend-name">${escH(act)}${isLive?' <span style="color:#34d399;font-size:8px;"> ●</span>':''}</span><span class="legend-time">${fmtHM(secs)}</span></div>`;
     }),
     untracked>0?`<div class="legend-row"><div class="legend-dot" style="background:#1a2540;border:1px solid #1e293b;"></div><span class="legend-name" style="color:#4b6175;">Untracked</span><span class="legend-time" style="color:#475569;">${fmtHM(untracked)}</span></div>`:''
@@ -972,55 +999,74 @@ function renderPie(u){
 }
 
 // ════════════════════════════════
-// WEEKLY STUDY GRAPH — last 7 days, both users
+// WEEKLY STUDY GRAPH — last 7 app-days, both users, line chart.
+// Reads straight from historyData (already loaded/synced) — no separate
+// fetch, and no separate day-boundary definition to drift out of sync with
+// the rest of the app. Every point is exactly that app-day's own row.
 // ════════════════════════════════
-async function renderStudyGraph(){
+function renderStudyGraph(){
   const svg=document.getElementById('graph-svg');
   if(!svg)return;
-  const days=[];
-  for(let i=6;i>=0;i--){ const d=new Date(); d.setHours(0,0,0,0); d.setDate(d.getDate()-i); days.push(d); }
-  const dayKeys=days.map(dstr);
+
+  // Match the viewBox to the SVG's actual rendered pixel size 1:1 so nothing
+  // gets non-uniformly stretched (that mismatch was the "distorted" look —
+  // rounded corners/text were being squashed on one axis and stretched on the other).
+  const rect=svg.getBoundingClientRect();
+  const W=Math.max(200,Math.round(rect.width)||340);
+  const H=Math.max(60,Math.round(rect.height)||90);
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+
+  // build the last 7 app-day keys, walking backward from today's app-day
+  const dayKeys=[]; const days=[];
+  let k=currentDayKey||appDayKey(new Date());
+  for(let i=0;i<7;i++){
+    dayKeys.unshift(k);
+    days.unshift(new Date(k+'T12:00:00')); // noon avoids any DST edge weirdness in label formatting
+    const prev=new Date(k+'T12:00:00'); prev.setDate(prev.getDate()-1);
+    k=dstr(prev);
+  }
+
   const totals={ Vedant:{}, Girlfriend:{} };
-  dayKeys.forEach(k=>{ totals.Vedant[k]=0; totals.Girlfriend[k]=0; });
-
-  try{
-    const { data, error } = await _sb.from('study_history')
-      .select('user_name,duration_seconds,created_at')
-      .gte('created_at', days[0].toISOString());
-    if(!error && data){
-      data.forEach(row=>{
-        if(!row.created_at||!totals[row.user_name])return;
-        const k=dstr(new Date(row.created_at));
-        if(k in totals[row.user_name]) totals[row.user_name][k]+=row.duration_seconds||0;
-      });
-    }
-  }catch(e){ console.error('renderStudyGraph fetch failed',e); }
-
-  // today's bar mirrors the live pie-chart total (history only logs completed segments)
+  dayKeys.forEach(dk=>{
+    totals.Vedant[dk]=historyData.Vedant[dk]||0;
+    totals.Girlfriend[dk]=historyData.Girlfriend[dk]||0;
+  });
+  // today's point is always the live, still-ticking total
   const todayKey=dayKeys[6];
-  ['Vedant','Girlfriend'].forEach(u=>{
-    let secs=dbState[u].totalPastSeconds;
-    if(dbState[u].isActive&&dbState[u].lastStartedAt)
-      secs+=Math.max(0,Math.floor((Date.now()-new Date(dbState[u].lastStartedAt).getTime())/1000));
-    totals[u][todayKey]=Math.max(totals[u][todayKey],secs);
-  });
+  totals.Vedant[todayKey]=liveStudySecondsToday('Vedant');
+  totals.Girlfriend[todayKey]=liveStudySecondsToday('Girlfriend');
 
-  const maxVal=Math.max(3600,...dayKeys.map(k=>Math.max(totals.Vedant[k],totals.Girlfriend[k])));
-  const W=340,H=100,padBottom=16,padTop=6,groupW=W/7;
-  let bars='';
+  const maxVal=Math.max(3600,...dayKeys.map(dk=>Math.max(totals.Vedant[dk],totals.Girlfriend[dk])))*1.15;
+  const padL=8,padR=8,padTop=10,padBottom=18;
+  const usableW=W-padL-padR, usableH=H-padTop-padBottom;
+  const stepX=usableW/(dayKeys.length-1);
+  const xy=(i,val)=>[padL+stepX*i, padTop+usableH-(val/maxVal)*usableH];
+
+  function buildLine(u,color){
+    const pts=dayKeys.map((k,i)=>xy(i,totals[u][k]));
+    const poly=pts.map(p=>`${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+    let out=`<polyline points="${poly}" fill="none" stroke="${color}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+    pts.forEach((p,i)=>{
+      out+=`<circle cx="${p[0].toFixed(1)}" cy="${p[1].toFixed(1)}" r="2.6" fill="${color}"><title>${u==='Vedant'?'Nightfury':'Lightfury'} — ${days[i].toLocaleDateString([],{weekday:'short'})}: ${fmtHM(totals[u][dayKeys[i]])}</title></circle>`;
+    });
+    return out;
+  }
+
+  let svgContent='';
+  svgContent+=buildLine('Vedant','#60a5fa');
+  svgContent+=buildLine('Girlfriend','#f472b6');
   dayKeys.forEach((k,i)=>{
-    const x0=i*groupW, bw=groupW*0.27, gapMid=groupW*0.08;
-    const usableH=H-padBottom-padTop, baseY=H-padBottom;
-    const vH=totals.Vedant[k]>0?Math.max(2,(totals.Vedant[k]/maxVal)*usableH):0;
-    const gH=totals.Girlfriend[k]>0?Math.max(2,(totals.Girlfriend[k]/maxVal)*usableH):0;
-    const vX=x0+groupW*0.16, gX=vX+bw+gapMid;
-    bars+=`<rect x="${vX.toFixed(1)}" y="${(baseY-vH).toFixed(1)}" width="${bw.toFixed(1)}" height="${vH.toFixed(1)}" rx="2" fill="#60a5fa" opacity="0.9"><title>Nightfury: ${fmtHM(totals.Vedant[k])}</title></rect>`;
-    bars+=`<rect x="${gX.toFixed(1)}" y="${(baseY-gH).toFixed(1)}" width="${bw.toFixed(1)}" height="${gH.toFixed(1)}" rx="2" fill="#f472b6" opacity="0.9"><title>Lightfury: ${fmtHM(totals.Girlfriend[k])}</title></rect>`;
+    const x=padL+stepX*i;
     const lbl=days[i].toLocaleDateString([],{weekday:'short'}).slice(0,1);
-    bars+=`<text x="${(x0+groupW/2).toFixed(1)}" y="${H-4}" font-size="8" fill="#475569" text-anchor="middle" font-family="Inter,sans-serif">${lbl}</text>`;
+    svgContent+=`<text x="${x.toFixed(1)}" y="${H-4}" font-size="8" fill="#475569" text-anchor="middle" font-family="Inter,sans-serif">${lbl}</text>`;
   });
-  svg.innerHTML=bars;
+  svg.innerHTML=svgContent;
 }
+let _graphResizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(_graphResizeTimer);
+  _graphResizeTimer=setTimeout(renderStudyGraph,250);
+});
 
 // ════════════════════════════════
 // MASTER TODOS
@@ -1040,17 +1086,17 @@ function toggleMasterTodo(u,id){
 }
 function deleteMasterTodo(u,id){
   masterTodos[u]=masterTodos[u].filter(x=>x.id!==id);
-  dailyTodos[u]=dailyTodos[u].filter(x=>x.masterRef!==id);
+  todayData[u].daily_todos=todayData[u].daily_todos.filter(x=>x.masterRef!==id);
   renderDaily(u); saveDailyTodos(u); renderModal(u); saveMasterTodos(u);
 }
 function addToDaily(u,id){
   const t=masterTodos[u].find(x=>x.id===id); if(!t)return;
-  if(dailyTodos[u].some(x=>x.masterRef===id))return;
-  dailyTodos[u].push({id:uid(),text:t.text,done:false,masterRef:id,addedAt:new Date().toISOString()});
+  if(todayData[u].daily_todos.some(x=>x.masterRef===id))return;
+  todayData[u].daily_todos.push({id:uid(),text:t.text,done:false,masterRef:id,addedAt:new Date().toISOString()});
   renderDaily(u); saveDailyTodos(u); renderModal(u);
 }
 function removeFromDaily(u,masterRef){
-  dailyTodos[u]=dailyTodos[u].filter(x=>x.masterRef!==masterRef);
+  todayData[u].daily_todos=todayData[u].daily_todos.filter(x=>x.masterRef!==masterRef);
   renderDaily(u); saveDailyTodos(u); renderModal(u);
 }
 function renderModal(u){
@@ -1061,7 +1107,7 @@ function renderModal(u){
   const isV=u==='Vedant'; const color=isV?'#2563eb':'#db2777';
   if(!todos.length){body.innerHTML='<div class="empty-state" style="padding:20px 0;text-align:center;">No tasks yet — add one below</div>';return;}
   body.innerHTML=[...todos].sort((a,b)=>a.done-b.done).map(t=>{
-    const inDaily=dailyTodos[u].some(x=>x.masterRef===t.id);
+    const inDaily=todayData[u].daily_todos.some(x=>x.masterRef===t.id);
     return `<div class="master-item slide-up">
       <button onclick="toggleMasterTodo('${u}','${t.id}')" class="dt-check ${t.done?(isV?'done-v':'done-g'):''}" style="${t.done?`background:${color};border-color:${color}`:''}">
         ${t.done?`<span style="color:#fff;font-size:8px;">✓</span>`:''}
@@ -1076,24 +1122,31 @@ function renderModal(u){
 }
 
 // ════════════════════════════════
-// DAILY TODOS
+// DAILY TODOS — live inside today's day_data row. A new app-day starts with
+// an empty list automatically (there's no row yet), so there's nothing to
+// manually clear and nothing that can leak between days.
 // ════════════════════════════════
-async function saveDailyTodos(u){ await setState(`daily_${u}`, dailyTodos[u]); }
+async function saveDailyTodos(u){
+  const { error } = await _sb.from('day_data')
+    .upsert({ user_name:u, day_key:currentDayKey, daily_todos:todayData[u].daily_todos }, { onConflict:'user_name,day_key' });
+  if(error) console.error(`❌ saveDailyTodos failed [${u}]:`,error.message);
+}
 function toggleDailyTodo(u,id){
-  const t=dailyTodos[u].find(x=>x.id===id); if(t)t.done=!t.done;
+  const t=todayData[u].daily_todos.find(x=>x.id===id); if(t)t.done=!t.done;
   renderDaily(u); saveDailyTodos(u);
   if(currentModalUser===u) renderModal(u);
 }
 function deleteDailyTodo(u,id){
-  dailyTodos[u]=dailyTodos[u].filter(x=>x.id!==id);
+  todayData[u].daily_todos=todayData[u].daily_todos.filter(x=>x.id!==id);
   renderDaily(u); saveDailyTodos(u);
   if(currentModalUser===u) renderModal(u);
 }
 function renderDaily(u){
   const c=document.getElementById(`daily-${u}`);
   const isV=u==='Vedant'; const color=isV?'#2563eb':'#db2777';
-  if(!dailyTodos[u].length){c.innerHTML='<div class="empty-state">No tasks added yet</div>';return;}
-  c.innerHTML=[...dailyTodos[u]].sort((a,b)=>a.done-b.done).map(t=>`
+  const list=todayData[u].daily_todos;
+  if(!list.length){c.innerHTML='<div class="empty-state">No tasks added yet</div>';return;}
+  c.innerHTML=[...list].sort((a,b)=>a.done-b.done).map(t=>`
     <div class="dt-item" data-daily-id="${t.id}">
       <button class="dt-check ${t.done?(isV?'done-v':'done-g'):''}"
         style="${t.done?`background:${color};border-color:${color}`:''}"
@@ -1126,7 +1179,7 @@ function closeModal(){
 function handleOverlayClick(e){ if(e.target===document.getElementById('modal-overlay')) closeModal(); }
 document.addEventListener('keydown',e=>{
   if(e.key!=='Escape')return;
-  closeModal(); closeNoteCompose(); closeNotePopup(); closeDockMode();
+  closeModal(); closeNoteCompose(); closeNotePopup(); closeDockMode(); closeIdentityPicker();
 });
 
 // ════════════════════════════════
@@ -1170,8 +1223,6 @@ document.addEventListener('keydown',e=>{
 let periodDates=[]; // array of 'YYYY-MM-DD' strings, the logged period-start days
 let periodViewDate=new Date(); periodViewDate.setDate(1);
 const DOW_LABELS=['S','M','T','W','T','F','S'];
-
-function dstr(d){ const y=d.getFullYear(),m=String(d.getMonth()+1).padStart(2,'0'),day=String(d.getDate()).padStart(2,'0'); return `${y}-${m}-${day}`; }
 
 function periodPredictNext(){
   if(!periodDates.length) return null;
@@ -1256,7 +1307,12 @@ let lastSentNoteId={ note_for_Vedant:null, note_for_Girlfriend:null };
 let dismissedNoteId={ note_for_Vedant:null, note_for_Girlfriend:null };
 let currentPopupNote=null; // {key,id}
 
-function openNoteCompose(sender){
+function openNoteCompose(cardUser){
+  // the note is always sent AS this device's identity, regardless of which
+  // card's 💌 button was tapped — that's what makes "sending" unambiguous
+  // once a device has picked who it belongs to.
+  if(!IDENTITY){ openIdentityPicker(); return; }
+  const sender=IDENTITY;
   noteComposeSender=sender;
   const target=OTHER_USER[sender];
   document.getElementById('note-compose-title').textContent=`Send a note to ${USER_DISPLAY[target]}`;
@@ -1325,9 +1381,8 @@ async function dockToggle(){
 function renderDockMode(){
   const u=dockUser; if(!u)return;
   const isV=u==='Vedant';
-  const s=dbState[u];
-  let secs=s.totalPastSeconds;
-  if(s.isActive&&s.lastStartedAt) secs+=Math.max(0,Math.floor((Date.now()-new Date(s.lastStartedAt).getTime())/1000));
+  const isStudying=liveStatus[u]?.activity===STUDY_ACT;
+  const secs=liveStudySecondsToday(u);
 
   const nameEl=document.getElementById('dock-name');
   nameEl.textContent=isV?'Nightfury':'Lightfury';
@@ -1336,28 +1391,80 @@ function renderDockMode(){
   document.getElementById('dock-timer').textContent=fmtTime(secs);
 
   const statusEl=document.getElementById('dock-status');
-  statusEl.textContent=s.isActive?'Studying Live':'Paused';
-  statusEl.className='dock-status'+(s.isActive?' live':'');
+  statusEl.textContent=isStudying?'Studying Live':'Paused';
+  statusEl.className='dock-status'+(isStudying?' live':'');
 
   const btn=document.getElementById('dock-btn');
-  btn.textContent=s.isActive?'⏸ Pause':'▶ Continue';
+  btn.textContent=isStudying?'⏸ Pause':'▶ Continue';
   btn.className='dock-btn '+(isV?'v':'g');
 }
+
+// ════════════════════════════════
+// DEVICE IDENTITY — Lightfury / Nightfury, per device, stored only in
+// localStorage on that device. Determines who a sent note is FROM and which
+// incoming notes THIS device should pop up for.
+// ════════════════════════════════
+function updateIdentityUI(){
+  document.getElementById('identity-label').textContent = IDENTITY
+    ? (IDENTITY==='Vedant' ? 'Nightfury device' : 'Lightfury device')
+    : 'Set device';
+  document.getElementById('you-tag-Vedant').textContent = IDENTITY==='Vedant' ? '· YOU' : '';
+  document.getElementById('you-tag-Girlfriend').textContent = IDENTITY==='Girlfriend' ? '· YOU' : '';
+  document.getElementById('identity-close-btn').style.display = IDENTITY ? 'flex' : 'none';
+}
+function chooseIdentity(u){
+  IDENTITY=u;
+  localStorage.setItem('deviceIdentity',u);
+  updateIdentityUI();
+  closeIdentityPicker();
+}
+function openIdentityPicker(){ document.getElementById('identity-overlay').classList.add('open'); }
+function closeIdentityPicker(){
+  if(!IDENTITY) return; // first-run pick isn't optional to dismiss without choosing
+  document.getElementById('identity-overlay').classList.remove('open');
+}
+
+// ════════════════════════════════
+// STREAK BADGE — lit up when a user has studied 4.5+ hours on 2+ days in a
+// row (counting today, if today's already past the threshold). Computed
+// straight from day_data — no separate streak state to keep in sync.
+// ════════════════════════════════
+function computeStreak(u){
+  let count=0, key=currentDayKey, idx=0;
+  while(idx<60){
+    const val = idx===0 ? liveStudySecondsToday(u) : (historyData[u][key]||0);
+    if(val>=STREAK_SECONDS) count++; else break;
+    idx++;
+    const prev=new Date(key+'T12:00:00'); prev.setDate(prev.getDate()-1);
+    key=dstr(prev);
+  }
+  return count;
+}
+function updateStreakBadge(u){
+  const el=document.getElementById(`streak-${u}`);
+  if(!el) return;
+  const n=computeStreak(u);
+  if(n>=2){ el.style.display='inline-flex'; el.textContent=`🔥 ${n}-day streak`; }
+  else { el.style.display='none'; el.textContent=''; }
+}
+function updateAllStreakBadges(){ USERS.forEach(updateStreakBadge); }
 
 // ════════════════════════════════
 // REALTIME SUBSCRIPTIONS — instant cross-device sync
 // ════════════════════════════════
 function setupRealtime(){
-  // Subscribe to study_sessions table changes
-  _sb.channel('sessions-channel')
+  _sb.channel('daydata-channel')
     .on('postgres_changes',
-      { event:'*', schema:'public', table:'study_sessions' },
-      payload=>{
-        if(payload.new) applySessionRow(payload.new);
-      })
+      { event:'*', schema:'public', table:'day_data' },
+      payload=>{ applyDayDataRow(payload.new || payload.old); })
     .subscribe();
 
-  // Subscribe to app_state table changes — covers everything else
+  _sb.channel('userstatus-channel')
+    .on('postgres_changes',
+      { event:'*', schema:'public', table:'user_status' },
+      payload=>{ applyUserStatusRow(payload.new || payload.old); })
+    .subscribe();
+
   _sb.channel('appstate-channel')
     .on('postgres_changes',
       { event:'*', schema:'public', table:'app_state' },
@@ -1374,45 +1481,54 @@ function setupRealtime(){
 // BOOT — fetch everything once, then Realtime takes over
 // ════════════════════════════════
 async function init(){
-  // 0. Render static widgets that don't need network data first
+  // 0. Device identity — non-blocking, but nag until picked
+  IDENTITY = localStorage.getItem('deviceIdentity');
+  updateIdentityUI();
+  if(!IDENTITY) document.getElementById('identity-overlay').classList.add('open');
+
+  currentDayKey = appDayKey(new Date());
+
+  // 1. Render static widgets that don't need network data first
   renderPeriodTracker();
 
-  // 1. Sessions
-  await fetchSessions();
+  // 2. Current live status for both users
+  const { data: statusRows, error: statusErr } = await _sb.from('user_status').select('*');
+  if(statusErr) console.error('❌ user_status fetch failed:', statusErr);
+  (statusRows||[]).forEach(applyUserStatusRow);
 
-  // 2. Fetch ALL app_state rows (avoids missing keys that haven't been created yet)
+  // 3. Last 30 app-days of day_data (today's row feeds the cards/pies/todos;
+  //    the rest feeds the weekly graph + streak)
+  await refreshDayData();
+
+  // 4. Fetch remaining app_state rows (master lists, period tracker, notes)
   const { data: stateRows, error: stateErr } = await _sb.from('app_state').select('key,value');
-  if(stateErr) console.error('init fetch error', stateErr);
-  let lastResetVal=null;
-  if(stateRows){
-    stateRows.forEach(r => {
-      if(r.key==='last_reset_date'){ try{ lastResetVal=JSON.parse(r.value); }catch(e){} }
-      applyAppStateRow(r.key, r.value);
-    });
-  }
+  if(stateErr) console.error('❌ app_state fetch failed:', stateErr);
+  (stateRows||[]).forEach(r => applyAppStateRow(r.key, r.value));
 
-  // 3. If the day rolled over while nobody had the app open, catch up now,
-  //    then keep an in-page timer so an open tab also resets right at midnight
-  await checkAndRunMissedReset(lastResetVal);
-  scheduleMidnightReset();
+  // 5. Render everything with the initial data
+  USERS.forEach(u=>{ renderActivityRow(u); updateCardUI(u); renderDaily(u); renderPie(u); });
+  renderStudyGraph();
+  updateAllStreakBadges();
 
-  // 4. Wire up Realtime — all subsequent changes arrive via subscriptions
+  // 6. Wire up Realtime — all subsequent changes arrive via subscriptions
   setupRealtime();
 
-  // 5. Render pies + weekly graph with initial data
-  ['Vedant','Girlfriend'].forEach(renderPie);
-  renderStudyGraph();
+  // 7. Passive day-rollover watch — no writes unless a segment needs flushing
+  setInterval(checkDayRollover, 30000);
 
-  // 6. Light fallback poll every 30s in case Realtime drops
+  // 8. Periodic durability flush, so a live segment is never more than ~90s
+  //    of network trouble away from being safely split into the right day(s)
+  setInterval(periodicFlush, 90000);
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden) periodicFlush(); });
+  window.addEventListener('beforeunload', periodicFlush);
+
+  // 9. Light fallback poll every 30s in case Realtime drops
   setInterval(async()=>{
     const { data } = await _sb.from('app_state').select('key,value');
     if(data) data.forEach(r => applyAppStateRow(r.key, r.value));
-    await fetchSessions();
-    ['Vedant','Girlfriend'].forEach(renderPie);
+    const { data: sRows } = await _sb.from('user_status').select('*');
+    if(sRows) sRows.forEach(applyUserStatusRow);
   }, 30000);
-
-  // 7. Refresh the weekly graph periodically too (less often, it changes slowly)
-  setInterval(renderStudyGraph, 120000);
 }
 
 init();
