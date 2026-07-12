@@ -602,8 +602,8 @@ let masterTodos  = { Vedant:[], Girlfriend:[] };
 // mirrors the `user_status` table — the single source of truth for "what is
 // this person doing right now", independent of which calendar/app day it is.
 let liveStatus = {
-  Vedant:    { activity:null, segment_start:null },
-  Girlfriend:{ activity:null, segment_start:null }
+  Vedant:    { activity:null, segment_start:null, activity_started_at:null },
+  Girlfriend:{ activity:null, segment_start:null, activity_started_at:null }
 };
 // todayData[u] = { study_seconds, activity_seconds:{act:secs}, daily_todos:[] }
 // — this is exactly (and only) the row for the CURRENT app-day in `day_data`.
@@ -716,8 +716,8 @@ setInterval(()=>{
 
     const ls=liveStatus[u];
     const elEl=document.getElementById(`aelapsed-${u}`);
-    if(ls&&ls.activity&&ls.segment_start){
-      elEl.textContent=fmtElapsed(Date.now()-new Date(ls.segment_start).getTime());
+    if(ls&&ls.activity&&ls.activity_started_at){
+      elEl.textContent=fmtElapsed(Date.now()-new Date(ls.activity_started_at).getTime());
       elEl.className='activity-elapsed live';
     } else {
       elEl.textContent=''; elEl.className='activity-elapsed';
@@ -864,7 +864,7 @@ function applyDayDataRow(row){
 
 function applyUserStatusRow(row){
   if(!row||!row.user_name) return;
-  liveStatus[row.user_name]={ activity: row.activity, segment_start: row.segment_start };
+  liveStatus[row.user_name]={ activity: row.activity, segment_start: row.segment_start, activity_started_at: row.activity_started_at };
   renderActivityRow(row.user_name);
   updateCardUI(row.user_name);
   renderPie(row.user_name);
@@ -915,7 +915,8 @@ function periodicFlush(){ USERS.forEach(flushSegment); }
 // even if another device does something at the same instant.
 async function setActivity(u, text){
   // optimistic local update so the UI feels instant
-  liveStatus[u] = text ? { activity:text, segment_start:new Date().toISOString() } : { activity:null, segment_start:null };
+  const now = new Date().toISOString();
+  liveStatus[u] = text ? { activity:text, segment_start:now, activity_started_at:now } : { activity:null, segment_start:null, activity_started_at:null };
   renderActivityRow(u); updateCardUI(u); renderPie(u);
   const { error } = await _sb.rpc('set_activity', { p_user:u, p_activity:text||null });
   if(error) console.error(`❌ set_activity failed [${u}]:`,error.message);
