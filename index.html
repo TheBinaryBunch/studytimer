@@ -225,6 +225,20 @@ input[type=text]::placeholder{color:#4b6175;}
 .period-legend-item{display:flex;align-items:center;gap:4px;font-size:9px;color:#64748b;}
 .period-legend-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;}
 
+/* ════ LIGHTFURY'S HEALTH ════ */
+.health-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 14px 8px;margin-bottom:14px;}
+.health-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
+.health-title{font-size:12px;font-weight:800;color:#f472b6;}
+.health-current{font-size:13px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#f9a8d4;}
+.health-current .health-current-lbl{font-size:8px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4b6175;margin-right:5px;}
+#health-svg{width:100%;height:110px;display:block;}
+.health-legend{display:flex;gap:12px;margin:6px 0 10px;}
+.health-controls{display:flex;gap:6px;padding-bottom:12px;flex-wrap:wrap;}
+.health-controls input{flex:1;min-width:110px;}
+.health-med-btn{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.4);color:#6ee7b7;padding:9px 12px;border-radius:9px;white-space:nowrap;}
+.health-med-btn:hover{filter:brightness(1.15);}
+.health-empty{font-size:12px;color:#4b6175;font-style:italic;padding:0 0 12px;text-align:center;}
+
 /* ════ YOU TAG + STREAK BADGE ════ */
 .you-tag{font-size:9px;font-weight:800;color:#475569;margin-left:6px;letter-spacing:.08em;vertical-align:middle;}
 .streak-badge{display:none;align-items:center;gap:3px;font-size:10px;font-weight:800;color:#fbbf24;background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.35);border-radius:20px;padding:2px 8px;margin-top:5px;letter-spacing:.02em;width:fit-content;}
@@ -507,6 +521,25 @@ input[type=text]::placeholder{color:#4b6175;}
       <div class="period-legend-item"><div class="period-legend-dot" style="background:#db2777;"></div>Logged</div>
       <div class="period-legend-item"><div class="period-legend-dot" style="background:transparent;border:1.5px dashed #f472b6;"></div>Predicted</div>
     </div>
+  </div>
+
+  <!-- ════ LIGHTFURY'S HEALTH ════ -->
+  <div class="health-card">
+    <div class="health-header">
+      <div class="health-title">🌡️ Lightfury's Health</div>
+      <div class="health-current" id="health-current"><span class="health-current-lbl">Latest</span>—</div>
+    </div>
+    <svg id="health-svg" viewBox="0 0 340 110"></svg>
+    <div class="health-legend">
+      <span class="graph-legend-item"><span class="graph-legend-dot" style="background:#f472b6;"></span>Temperature (°F)</span>
+      <span class="graph-legend-item"><span class="graph-legend-dot" style="background:#34d399;border-radius:50%;"></span>Had medicine</span>
+    </div>
+    <div class="health-controls">
+      <input type="text" inputmode="decimal" id="health-temp-inp" placeholder="Temp °F, e.g. 100.4" onkeydown="if(event.key==='Enter')logTemperature()">
+      <button class="btn btn-set" onclick="logTemperature()">Log</button>
+      <button class="btn health-med-btn" onclick="logMedicine()">💊 Had Medicine</button>
+    </div>
+    <div class="health-empty" id="health-empty" style="display:none;">No readings logged yet</div>
   </div>
 
 </div><!-- /page -->
@@ -823,6 +856,10 @@ function applyAppStateRow(key, rawValue){
   } else if(key==='period_Girlfriend'){
     periodDates=Array.isArray(val)?val:[];
     renderPeriodTracker();
+
+  } else if(key==='health_Girlfriend'){
+    healthData=(val && Array.isArray(val.readings) && Array.isArray(val.meds)) ? val : { readings:[], meds:[] };
+    renderHealthGraph();
 
   } else if(key==='note_for_Vedant'||key==='note_for_Girlfriend'){
     if(!val||!val.text) return;
@@ -1299,6 +1336,117 @@ function renderPeriodTracker(){
 }
 
 // ════════════════════════════════
+// LIGHTFURY'S HEALTH — manual body-temperature log + "had medicine"
+// checkpoints, so a fever's fall after medicine is easy to see on the graph.
+// Stored as one app_state row: { readings:[{id,ts,temp}], meds:[{id,ts}] }.
+// ════════════════════════════════
+let healthData={ readings:[], meds:[] };
+
+async function saveHealthData(){ await setState('health_Girlfriend', healthData); }
+
+function logTemperature(){
+  const inp=document.getElementById('health-temp-inp');
+  const raw=inp.value.trim().replace(/[^\d.]/g,'');
+  const temp=parseFloat(raw);
+  if(!raw || isNaN(temp) || temp<90 || temp>110){
+    inp.style.borderColor='#f87171';
+    setTimeout(()=>{ inp.style.borderColor=''; },900);
+    return;
+  }
+  healthData.readings.push({ id:uid(), ts:Date.now(), temp });
+  healthData.readings.sort((a,b)=>a.ts-b.ts);
+  inp.value='';
+  renderHealthGraph();
+  saveHealthData();
+}
+
+function logMedicine(){
+  healthData.meds.push({ id:uid(), ts:Date.now() });
+  healthData.meds.sort((a,b)=>a.ts-b.ts);
+  renderHealthGraph();
+  saveHealthData();
+}
+
+function renderHealthGraph(){
+  const svg=document.getElementById('health-svg');
+  if(!svg) return;
+
+  const readings=healthData.readings||[];
+  const meds=healthData.meds||[];
+
+  const curEl=document.getElementById('health-current');
+  const emptyEl=document.getElementById('health-empty');
+  if(readings.length){
+    const last=readings[readings.length-1];
+    curEl.innerHTML=`<span class="health-current-lbl">Latest</span>${last.temp.toFixed(1)}°F`;
+  } else {
+    curEl.innerHTML=`<span class="health-current-lbl">Latest</span>—`;
+  }
+
+  if(!readings.length){
+    svg.innerHTML='';
+    emptyEl.style.display='block';
+    return;
+  }
+  emptyEl.style.display='none';
+
+  const rect=svg.getBoundingClientRect();
+  const W=Math.max(200,Math.round(rect.width)||340);
+  const H=Math.max(70,Math.round(rect.height)||110);
+  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
+
+  const padL=26,padR=8,padTop=10,padBottom=18;
+  const usableW=W-padL-padR, usableH=H-padTop-padBottom;
+
+  // time range spans every reading + medicine checkpoint, padded a little on
+  // each side so points near the edges aren't clipped
+  const allTs=[...readings.map(r=>r.ts),...meds.map(m=>m.ts)];
+  let minTs=Math.min(...allTs), maxTs=Math.max(...allTs);
+  if(minTs===maxTs){ minTs-=30*60000; maxTs+=30*60000; }
+  const span=(maxTs-minTs)*1.0;
+  const pad=span*0.06;
+  minTs-=pad; maxTs+=pad;
+
+  const minTemp=Math.min(97,...readings.map(r=>r.temp))-0.6;
+  const maxTemp=Math.max(100,...readings.map(r=>r.temp))+0.6;
+
+  const xOf=ts=>padL+((ts-minTs)/(maxTs-minTs))*usableW;
+  const yOf=t=>padTop+usableH-((t-minTemp)/(maxTemp-minTemp))*usableH;
+
+  let out='';
+
+  // horizontal gridlines + temp labels (low / mid / high)
+  [minTemp,(minTemp+maxTemp)/2,maxTemp].forEach(t=>{
+    const y=yOf(t);
+    out+=`<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#1e293b" stroke-width="1"/>`;
+    out+=`<text x="2" y="${(y+3).toFixed(1)}" font-size="7.5" fill="#475569" font-family="JetBrains Mono,monospace">${t.toFixed(1)}</text>`;
+  });
+
+  // medicine checkpoints — dashed vertical lines with a dot at the top
+  meds.forEach(m=>{
+    const x=xOf(m.ts);
+    out+=`<line x1="${x.toFixed(1)}" y1="${padTop}" x2="${x.toFixed(1)}" y2="${(H-padBottom).toFixed(1)}" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3,3" opacity="0.75"><title>💊 Had medicine — ${new Date(m.ts).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</title></line>`;
+    out+=`<circle cx="${x.toFixed(1)}" cy="${padTop}" r="3" fill="#34d399"><title>💊 Had medicine — ${new Date(m.ts).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</title></circle>`;
+  });
+
+  // temperature line + points
+  const pts=readings.map(r=>[xOf(r.ts),yOf(r.temp)]);
+  const poly=pts.map(p=>`${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  out+=`<polyline points="${poly}" fill="none" stroke="#f472b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
+  readings.forEach((r,i)=>{
+    const [x,y]=pts[i];
+    out+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.8" fill="#f472b6"><title>${r.temp.toFixed(1)}°F — ${new Date(r.ts).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</title></circle>`;
+  });
+
+  svg.innerHTML=out;
+}
+let _healthResizeTimer=null;
+window.addEventListener('resize',()=>{
+  clearTimeout(_healthResizeTimer);
+  _healthResizeTimer=setTimeout(renderHealthGraph,250);
+});
+
+// ════════════════════════════════
 // SEND A NOTE — pops up for the other person
 // ════════════════════════════════
 const OTHER_USER={ Vedant:'Girlfriend', Girlfriend:'Vedant' };
@@ -1509,6 +1657,7 @@ async function init(){
   // 5. Render everything with the initial data
   USERS.forEach(u=>{ renderActivityRow(u); updateCardUI(u); renderDaily(u); renderPie(u); });
   renderStudyGraph();
+  renderHealthGraph();
   updateAllStreakBadges();
 
   // 6. Wire up Realtime — all subsequent changes arrive via subscriptions
