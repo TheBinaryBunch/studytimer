@@ -225,19 +225,44 @@ input[type=text]::placeholder{color:#4b6175;}
 .period-legend-item{display:flex;align-items:center;gap:4px;font-size:9px;color:#64748b;}
 .period-legend-dot{width:8px;height:8px;border-radius:3px;flex-shrink:0;}
 
-/* ════ LIGHTFURY'S HEALTH ════ */
-.health-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 14px 8px;margin-bottom:14px;}
-.health-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;}
-.health-title{font-size:12px;font-weight:800;color:#f472b6;}
-.health-current{font-size:13px;font-weight:800;font-family:'JetBrains Mono',monospace;color:#f9a8d4;}
-.health-current .health-current-lbl{font-size:8px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:#4b6175;margin-right:5px;}
-#health-svg{width:100%;height:110px;display:block;}
-.health-legend{display:flex;gap:12px;margin:6px 0 10px;}
-.health-controls{display:flex;gap:6px;padding-bottom:12px;flex-wrap:wrap;}
-.health-controls input{flex:1;min-width:110px;}
-.health-med-btn{background:rgba(52,211,153,.12);border:1px solid rgba(52,211,153,.4);color:#6ee7b7;padding:9px 12px;border-radius:9px;white-space:nowrap;}
-.health-med-btn:hover{filter:brightness(1.15);}
-.health-empty{font-size:12px;color:#4b6175;font-style:italic;padding:0 0 12px;text-align:center;}
+/* ════ TIMETABLE ════ */
+.timetable-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 14px;margin-bottom:14px;}
+.tt-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px;gap:8px;flex-wrap:wrap;}
+.tt-title{font-size:12px;font-weight:800;color:#a78bfa;}
+.tt-user-toggle{display:flex;gap:3px;background:#070e1a;border:1px solid #1e293b;border-radius:10px;padding:3px;}
+.tt-user-btn{background:none;border:none;color:#64748b;font-size:11px;font-weight:700;padding:5px 10px;border-radius:8px;cursor:pointer;transition:all .12s;}
+.tt-user-btn.active-v{background:rgba(37,99,235,.18);color:#93c5fd;}
+.tt-user-btn.active-g{background:rgba(219,39,119,.18);color:#f9a8d4;}
+.tt-now-banner{background:#070e1a;border:1px solid #1e293b;border-radius:12px;padding:10px 12px;margin-bottom:10px;}
+.tt-now-label{font-size:8px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#4b6175;margin-bottom:3px;}
+.tt-now-activity{font-size:15px;font-weight:800;color:#e2e8f0;line-height:1.25;}
+.tt-now-activity.empty{color:#475569;font-weight:600;font-size:13px;}
+.tt-now-time{font-size:10px;color:#64748b;margin-top:2px;font-family:'JetBrains Mono',monospace;}
+.tt-next{font-size:10px;color:#4b6175;margin-top:6px;padding-top:6px;border-top:1px dashed #1e293b;}
+.tt-next b{color:#94a3b8;}
+.tt-toggle-btn{display:flex;align-items:center;justify-content:center;gap:5px;width:100%;background:none;border:1px dashed #2a3a50;color:#7a90a8;font-size:11px;font-weight:700;padding:7px;border-radius:9px;cursor:pointer;transition:all .12s;margin-bottom:0;}
+.tt-toggle-btn:hover{border-color:#475569;color:#94a3b8;}
+.tt-toggle-icon{display:inline-block;transition:transform .2s ease;font-size:10px;}
+.tt-toggle-btn.open .tt-toggle-icon{transform:rotate(180deg);}
+.tt-editor{display:none;margin-top:10px;}
+.tt-editor.open{display:block;}
+.tt-day-tabs{display:flex;gap:4px;overflow-x:auto;margin-bottom:8px;padding-bottom:2px;}
+.tt-day-tab{flex-shrink:0;background:#111827;border:1px solid #2a3a50;color:#7a90a8;font-size:11px;font-weight:700;padding:6px 10px;border-radius:9px;cursor:pointer;position:relative;}
+.tt-day-tab.active{background:rgba(167,139,250,.15);border-color:rgba(167,139,250,.5);color:#c4b5fd;}
+.tt-day-tab.is-today::after{content:'';position:absolute;top:3px;right:3px;width:4px;height:4px;border-radius:50%;background:#34d399;}
+.tt-block-list{display:flex;flex-direction:column;gap:5px;margin-bottom:10px;}
+.tt-block{display:flex;align-items:center;gap:8px;padding:7px 9px;border-radius:9px;background:#070e1a;border:1px solid #1e293b;}
+.tt-block.is-live{border-color:rgba(52,211,153,.4);box-shadow:0 0 0 1px rgba(52,211,153,.12);}
+.tt-block-time{font-size:10px;color:#64748b;font-family:'JetBrains Mono',monospace;width:100px;flex-shrink:0;}
+.tt-block-label{font-size:12.5px;color:#cbd5e1;flex:1;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+.tt-block-del{background:none;border:none;color:#475569;cursor:pointer;font-size:11px;padding:2px 4px;flex-shrink:0;}
+.tt-block-del:hover{color:#f87171;}
+.tt-add-row{display:flex;gap:6px;flex-wrap:wrap;}
+.tt-add-row input[type=time]{background:#1e293b;border:1px solid #334155;color:#e2e8f0;border-radius:9px;padding:7px 8px;font-size:12px;font-family:'JetBrains Mono',monospace;outline:none;width:106px;}
+.tt-add-row input[type=time]:focus{border-color:#a78bfa;}
+.tt-add-row input[type=text]{flex:1;min-width:100px;}
+.tt-add-row input[type=text]:focus{border-color:#a78bfa;}
+.tt-add-btn{background:#7c3aed;color:#fff;padding:8px 13px;border-radius:9px;font-size:12px;}
 
 /* ════ YOU TAG + STREAK BADGE ════ */
 .you-tag{font-size:9px;font-weight:800;color:#475569;margin-left:6px;letter-spacing:.08em;vertical-align:middle;}
@@ -289,14 +314,39 @@ input[type=text]::placeholder{color:#4b6175;}
     <button class="btn-dock" onclick="openIdentityPicker()" title="Switch device identity">🪪 <span id="identity-label">Set device</span></button>
   </div>
 
-  <!-- ════ DAYS TOGETHER ════ -->
-  <div class="together-card">
-    <div>
-      <div class="together-title">Days Together</div>
-      <div class="together-sub">Since Oct 6, 2024</div>
-      <div id="together-days" class="together-days">—</div>
+  <!-- ════ TIMETABLE ════ -->
+  <div class="timetable-card">
+    <div class="tt-header">
+      <div class="tt-title">🗓️ Timetable</div>
+      <div class="tt-user-toggle">
+        <button class="tt-user-btn" id="tt-user-btn-v" onclick="switchTTUser('Vedant')">⚡ Nightfury</button>
+        <button class="tt-user-btn" id="tt-user-btn-g" onclick="switchTTUser('Girlfriend')">🌸 Lightfury</button>
+      </div>
     </div>
-    <div class="together-heart">💞</div>
+
+    <div class="tt-now-banner">
+      <div class="tt-now-label">Right now</div>
+      <div class="tt-now-activity empty" id="tt-now-activity">Nothing scheduled right now</div>
+      <div class="tt-now-time" id="tt-now-time">—</div>
+      <div class="tt-next" id="tt-next">No upcoming blocks scheduled</div>
+    </div>
+
+    <button class="tt-toggle-btn" id="tt-toggle-btn" onclick="toggleTTEditor()">
+      <span>Edit schedule</span>
+      <span class="tt-toggle-icon">▾</span>
+    </button>
+
+    <div class="tt-editor" id="tt-editor">
+      <div class="tt-day-tabs" id="tt-day-tabs"></div>
+      <div class="tt-block-list" id="tt-block-list"><div class="empty-state">No blocks yet — add one below</div></div>
+
+      <div class="tt-add-row">
+        <input type="time" id="tt-start">
+        <input type="time" id="tt-end">
+        <input type="text" id="tt-label" placeholder="What's happening…" maxlength="60" onkeydown="if(event.key==='Enter')addTTBlock()">
+        <button class="btn tt-add-btn" onclick="addTTBlock()">Add</button>
+      </div>
+    </div>
   </div>
 
   <!-- ════ USER CARDS ════ -->
@@ -523,23 +573,14 @@ input[type=text]::placeholder{color:#4b6175;}
     </div>
   </div>
 
-  <!-- ════ LIGHTFURY'S HEALTH ════ -->
-  <div class="health-card">
-    <div class="health-header">
-      <div class="health-title">🌡️ Lightfury's Health</div>
-      <div class="health-current" id="health-current"><span class="health-current-lbl">Latest</span>—</div>
+  <!-- ════ DAYS TOGETHER ════ -->
+  <div class="together-card">
+    <div>
+      <div class="together-title">Days Together</div>
+      <div class="together-sub">Since Oct 6, 2024</div>
+      <div id="together-days" class="together-days">—</div>
     </div>
-    <svg id="health-svg" viewBox="0 0 340 110"></svg>
-    <div class="health-legend">
-      <span class="graph-legend-item"><span class="graph-legend-dot" style="background:#f472b6;"></span>Temperature (°F)</span>
-      <span class="graph-legend-item"><span class="graph-legend-dot" style="background:#34d399;border-radius:50%;"></span>Had medicine</span>
-    </div>
-    <div class="health-controls">
-      <input type="text" inputmode="decimal" id="health-temp-inp" placeholder="Temp °F, e.g. 100.4" onkeydown="if(event.key==='Enter')logTemperature()">
-      <button class="btn btn-set" onclick="logTemperature()">Log</button>
-      <button class="btn health-med-btn" onclick="logMedicine()">💊 Had Medicine</button>
-    </div>
-    <div class="health-empty" id="health-empty" style="display:none;">No readings logged yet</div>
+    <div class="together-heart">💞</div>
   </div>
 
 </div><!-- /page -->
@@ -857,9 +898,12 @@ function applyAppStateRow(key, rawValue){
     periodDates=Array.isArray(val)?val:[];
     renderPeriodTracker();
 
-  } else if(key==='health_Girlfriend'){
-    healthData=(val && Array.isArray(val.readings) && Array.isArray(val.meds)) ? val : { readings:[], meds:[] };
-    renderHealthGraph();
+  } else if(key==='timetable_Vedant'||key==='timetable_Girlfriend'){
+    const u=key.replace('timetable_','');
+    const merged=blankTimetable();
+    TT_DAYS.forEach(d=>{ if(val && Array.isArray(val[d])) merged[d]=val[d]; });
+    timetables[u]=merged;
+    renderTimetable();
 
   } else if(key==='note_for_Vedant'||key==='note_for_Girlfriend'){
     if(!val||!val.text) return;
@@ -1280,6 +1324,135 @@ function periodPredictNext(){
 
 async function savePeriodDates(){ await setState('period_Girlfriend', periodDates); }
 
+// ════════════════════════════════
+// TIMETABLE — a per-user, repeating weekly schedule ("what should I be
+// doing right now"). Stored as { Mon:[{id,start,end,label}], Tue:[...], … }
+// ════════════════════════════════
+const TT_DAYS=['Mon','Tue','Wed','Thu','Fri','Sat','Sun'];
+const TT_DAY_FULL={Mon:'Monday',Tue:'Tuesday',Wed:'Wednesday',Thu:'Thursday',Fri:'Friday',Sat:'Saturday',Sun:'Sunday'};
+function blankTimetable(){ const o={}; TT_DAYS.forEach(d=>o[d]=[]); return o; }
+let timetables={ Vedant:blankTimetable(), Girlfriend:blankTimetable() };
+let ttViewUser='Vedant';
+let ttEditorOpen=false;
+function toggleTTEditor(){
+  ttEditorOpen=!ttEditorOpen;
+  document.getElementById('tt-editor')?.classList.toggle('open',ttEditorOpen);
+  document.getElementById('tt-toggle-btn')?.classList.toggle('open',ttEditorOpen);
+}
+function todayTTDay(){ return TT_DAYS[(new Date().getDay()+6)%7]; }
+let ttViewDay=todayTTDay();
+
+function ttMinutes(hhmm){ const [h,m]=hhmm.split(':').map(Number); return h*60+m; }
+function ttFmt12(hhmm){
+  const [h,m]=hhmm.split(':').map(Number);
+  const period=h>=12?'PM':'AM'; let h12=h%12; if(h12===0)h12=12;
+  return `${h12}:${String(m).padStart(2,'0')} ${period}`;
+}
+async function saveTimetable(u){ await setState(`timetable_${u}`, timetables[u]); }
+
+function switchTTUser(u){ ttViewUser=u; renderTimetable(); }
+function switchTTDay(d){ ttViewDay=d; renderTimetableEditor(); }
+
+function addTTBlock(){
+  const s=document.getElementById('tt-start').value;
+  const e=document.getElementById('tt-end').value;
+  const labelInp=document.getElementById('tt-label');
+  const label=labelInp.value.trim();
+  if(!s||!e||!label) return;
+  if(ttMinutes(e)<=ttMinutes(s)) return; // end must be after start — no overnight blocks
+  timetables[ttViewUser][ttViewDay].push({id:uid(),start:s,end:e,label});
+  timetables[ttViewUser][ttViewDay].sort((a,b)=>ttMinutes(a.start)-ttMinutes(b.start));
+  labelInp.value='';
+  renderTimetableEditor();
+  renderTimetableNow();
+  saveTimetable(ttViewUser);
+}
+function deleteTTBlock(u,day,id){
+  timetables[u][day]=timetables[u][day].filter(b=>b.id!==id);
+  renderTimetableEditor();
+  renderTimetableNow();
+  saveTimetable(u);
+}
+
+function findCurrentTTBlock(u){
+  const now=new Date();
+  const day=TT_DAYS[(now.getDay()+6)%7];
+  const nowMin=now.getHours()*60+now.getMinutes();
+  const blocks=(timetables[u]&&timetables[u][day])||[];
+  return blocks.find(b=>ttMinutes(b.start)<=nowMin && nowMin<ttMinutes(b.end)) || null;
+}
+function findNextTTBlock(u){
+  const now=new Date();
+  const dayIdx=(now.getDay()+6)%7;
+  const nowMin=now.getHours()*60+now.getMinutes();
+  const todayBlocks=(timetables[u]&&timetables[u][TT_DAYS[dayIdx]])||[];
+  const upcoming=todayBlocks.filter(b=>ttMinutes(b.start)>nowMin).sort((a,b)=>ttMinutes(a.start)-ttMinutes(b.start));
+  if(upcoming.length) return {block:upcoming[0], when:'today'};
+  for(let i=1;i<=7;i++){
+    const key=TT_DAYS[(dayIdx+i)%7];
+    const blocks=[...((timetables[u]&&timetables[u][key])||[])].sort((a,b)=>ttMinutes(a.start)-ttMinutes(b.start));
+    if(blocks.length) return {block:blocks[0], when: i===1?'tomorrow':TT_DAY_FULL[key]};
+  }
+  return null;
+}
+
+function renderTimetableNow(){
+  const activityEl=document.getElementById('tt-now-activity');
+  if(!activityEl) return;
+  const timeEl=document.getElementById('tt-now-time');
+  const nextEl=document.getElementById('tt-next');
+  const u=ttViewUser;
+  const current=findCurrentTTBlock(u);
+  if(current){
+    activityEl.textContent=current.label;
+    activityEl.classList.remove('empty');
+    timeEl.textContent=`${ttFmt12(current.start)} – ${ttFmt12(current.end)}`;
+  } else {
+    activityEl.textContent='Nothing scheduled right now';
+    activityEl.classList.add('empty');
+    timeEl.textContent=new Date().toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'});
+  }
+  const next=findNextTTBlock(u);
+  if(next){
+    const whenLbl=next.when==='today'?'today':(next.when==='tomorrow'?'tomorrow':next.when);
+    nextEl.innerHTML=`Next: <b>${next.block.label}</b> at ${ttFmt12(next.block.start)} (${whenLbl})`;
+  } else {
+    nextEl.textContent='No upcoming blocks scheduled';
+  }
+}
+
+function renderTimetableEditor(){
+  const tabsEl=document.getElementById('tt-day-tabs');
+  if(!tabsEl) return;
+  const today=todayTTDay();
+  tabsEl.innerHTML=TT_DAYS.map(d=>`<button class="tt-day-tab ${d===ttViewDay?'active':''} ${d===today?'is-today':''}" onclick="switchTTDay('${d}')">${d}</button>`).join('');
+
+  const listEl=document.getElementById('tt-block-list');
+  const blocks=(timetables[ttViewUser]&&timetables[ttViewUser][ttViewDay])||[];
+  const current=findCurrentTTBlock(ttViewUser);
+  if(!blocks.length){
+    listEl.innerHTML='<div class="empty-state">No blocks yet — add one below</div>';
+  } else {
+    listEl.innerHTML=blocks.map(b=>{
+      const isLive=ttViewDay===today && current && current.id===b.id;
+      return `<div class="tt-block ${isLive?'is-live':''}">
+        <div class="tt-block-time">${ttFmt12(b.start)}–${ttFmt12(b.end)}</div>
+        <div class="tt-block-label">${b.label}</div>
+        <button class="tt-block-del" onclick="deleteTTBlock('${ttViewUser}','${ttViewDay}','${b.id}')">✕</button>
+      </div>`;
+    }).join('');
+  }
+}
+
+function renderTimetable(){
+  const btnV=document.getElementById('tt-user-btn-v');
+  const btnG=document.getElementById('tt-user-btn-g');
+  if(btnV) btnV.className='tt-user-btn'+(ttViewUser==='Vedant'?' active-v':'');
+  if(btnG) btnG.className='tt-user-btn'+(ttViewUser==='Girlfriend'?' active-g':'');
+  renderTimetableNow();
+  renderTimetableEditor();
+}
+
 function periodShiftMonth(dir){
   periodViewDate.setMonth(periodViewDate.getMonth()+dir);
   renderPeriodTracker();
@@ -1334,117 +1507,6 @@ function renderPeriodTracker(){
   }
   grid.innerHTML=cells;
 }
-
-// ════════════════════════════════
-// LIGHTFURY'S HEALTH — manual body-temperature log + "had medicine"
-// checkpoints, so a fever's fall after medicine is easy to see on the graph.
-// Stored as one app_state row: { readings:[{id,ts,temp}], meds:[{id,ts}] }.
-// ════════════════════════════════
-let healthData={ readings:[], meds:[] };
-
-async function saveHealthData(){ await setState('health_Girlfriend', healthData); }
-
-function logTemperature(){
-  const inp=document.getElementById('health-temp-inp');
-  const raw=inp.value.trim().replace(/[^\d.]/g,'');
-  const temp=parseFloat(raw);
-  if(!raw || isNaN(temp) || temp<90 || temp>110){
-    inp.style.borderColor='#f87171';
-    setTimeout(()=>{ inp.style.borderColor=''; },900);
-    return;
-  }
-  healthData.readings.push({ id:uid(), ts:Date.now(), temp });
-  healthData.readings.sort((a,b)=>a.ts-b.ts);
-  inp.value='';
-  renderHealthGraph();
-  saveHealthData();
-}
-
-function logMedicine(){
-  healthData.meds.push({ id:uid(), ts:Date.now() });
-  healthData.meds.sort((a,b)=>a.ts-b.ts);
-  renderHealthGraph();
-  saveHealthData();
-}
-
-function renderHealthGraph(){
-  const svg=document.getElementById('health-svg');
-  if(!svg) return;
-
-  const readings=healthData.readings||[];
-  const meds=healthData.meds||[];
-
-  const curEl=document.getElementById('health-current');
-  const emptyEl=document.getElementById('health-empty');
-  if(readings.length){
-    const last=readings[readings.length-1];
-    curEl.innerHTML=`<span class="health-current-lbl">Latest</span>${last.temp.toFixed(1)}°F`;
-  } else {
-    curEl.innerHTML=`<span class="health-current-lbl">Latest</span>—`;
-  }
-
-  if(!readings.length){
-    svg.innerHTML='';
-    emptyEl.style.display='block';
-    return;
-  }
-  emptyEl.style.display='none';
-
-  const rect=svg.getBoundingClientRect();
-  const W=Math.max(200,Math.round(rect.width)||340);
-  const H=Math.max(70,Math.round(rect.height)||110);
-  svg.setAttribute('viewBox',`0 0 ${W} ${H}`);
-
-  const padL=26,padR=8,padTop=10,padBottom=18;
-  const usableW=W-padL-padR, usableH=H-padTop-padBottom;
-
-  // time range spans every reading + medicine checkpoint, padded a little on
-  // each side so points near the edges aren't clipped
-  const allTs=[...readings.map(r=>r.ts),...meds.map(m=>m.ts)];
-  let minTs=Math.min(...allTs), maxTs=Math.max(...allTs);
-  if(minTs===maxTs){ minTs-=30*60000; maxTs+=30*60000; }
-  const span=(maxTs-minTs)*1.0;
-  const pad=span*0.06;
-  minTs-=pad; maxTs+=pad;
-
-  const minTemp=Math.min(97,...readings.map(r=>r.temp))-0.6;
-  const maxTemp=Math.max(100,...readings.map(r=>r.temp))+0.6;
-
-  const xOf=ts=>padL+((ts-minTs)/(maxTs-minTs))*usableW;
-  const yOf=t=>padTop+usableH-((t-minTemp)/(maxTemp-minTemp))*usableH;
-
-  let out='';
-
-  // horizontal gridlines + temp labels (low / mid / high)
-  [minTemp,(minTemp+maxTemp)/2,maxTemp].forEach(t=>{
-    const y=yOf(t);
-    out+=`<line x1="${padL}" y1="${y.toFixed(1)}" x2="${W-padR}" y2="${y.toFixed(1)}" stroke="#1e293b" stroke-width="1"/>`;
-    out+=`<text x="2" y="${(y+3).toFixed(1)}" font-size="7.5" fill="#475569" font-family="JetBrains Mono,monospace">${t.toFixed(1)}</text>`;
-  });
-
-  // medicine checkpoints — dashed vertical lines with a dot at the top
-  meds.forEach(m=>{
-    const x=xOf(m.ts);
-    out+=`<line x1="${x.toFixed(1)}" y1="${padTop}" x2="${x.toFixed(1)}" y2="${(H-padBottom).toFixed(1)}" stroke="#34d399" stroke-width="1.3" stroke-dasharray="3,3" opacity="0.75"><title>💊 Had medicine — ${new Date(m.ts).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</title></line>`;
-    out+=`<circle cx="${x.toFixed(1)}" cy="${padTop}" r="3" fill="#34d399"><title>💊 Had medicine — ${new Date(m.ts).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</title></circle>`;
-  });
-
-  // temperature line + points
-  const pts=readings.map(r=>[xOf(r.ts),yOf(r.temp)]);
-  const poly=pts.map(p=>`${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
-  out+=`<polyline points="${poly}" fill="none" stroke="#f472b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>`;
-  readings.forEach((r,i)=>{
-    const [x,y]=pts[i];
-    out+=`<circle cx="${x.toFixed(1)}" cy="${y.toFixed(1)}" r="2.8" fill="#f472b6"><title>${r.temp.toFixed(1)}°F — ${new Date(r.ts).toLocaleString([],{month:'short',day:'numeric',hour:'2-digit',minute:'2-digit'})}</title></circle>`;
-  });
-
-  svg.innerHTML=out;
-}
-let _healthResizeTimer=null;
-window.addEventListener('resize',()=>{
-  clearTimeout(_healthResizeTimer);
-  _healthResizeTimer=setTimeout(renderHealthGraph,250);
-});
 
 // ════════════════════════════════
 // SEND A NOTE — pops up for the other person
@@ -1634,6 +1696,7 @@ async function init(){
   IDENTITY = localStorage.getItem('deviceIdentity');
   updateIdentityUI();
   if(!IDENTITY) document.getElementById('identity-overlay').classList.add('open');
+  ttViewUser = IDENTITY || 'Vedant';
 
   currentDayKey = appDayKey(new Date());
 
@@ -1657,11 +1720,14 @@ async function init(){
   // 5. Render everything with the initial data
   USERS.forEach(u=>{ renderActivityRow(u); updateCardUI(u); renderDaily(u); renderPie(u); });
   renderStudyGraph();
-  renderHealthGraph();
+  renderTimetable();
   updateAllStreakBadges();
 
   // 6. Wire up Realtime — all subsequent changes arrive via subscriptions
   setupRealtime();
+
+  // 6b. Keep the "right now" banner accurate as time passes
+  setInterval(renderTimetableNow, 30000);
 
   // 7. Passive day-rollover watch — no writes unless a segment needs flushing
   setInterval(checkDayRollover, 30000);
