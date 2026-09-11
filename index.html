@@ -171,6 +171,14 @@ input[type=text]::placeholder{color:#4b6175;}
 .uceed-val{font-size:15px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#e2e8f0;}
 .uceed-lbl{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4b6175;margin-top:1px;}
 
+/* ════ EXAM COUNTDOWNS ROW (compact, 3-up) ════ */
+.exam-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+.exam-mini{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 6px;text-align:center;}
+.exam-mini-title{font-size:11px;font-weight:800;line-height:1.15;}
+.exam-mini-days{font-size:24px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1;margin-top:6px;}
+.exam-mini-date{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4b6175;margin-top:6px;}
+.exam-mini-label{font-size:9px;color:#475569;font-weight:600;margin-top:2px;}
+
 /* ════ DAYS TOGETHER ════ */
 .together-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
 .together-title{font-size:14px;font-weight:800;background:linear-gradient(90deg,#60a5fa,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;}
@@ -349,6 +357,30 @@ input[type=text]::placeholder{color:#4b6175;}
     </div>
   </div>
 
+  <!-- ════ EXAM COUNTDOWNS ════ -->
+  <div class="exam-row">
+    <div class="exam-mini">
+      <div class="exam-mini-title" style="background:linear-gradient(90deg,#f59e0b,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🎯 UCEED</div>
+      <div id="uceed-days" class="exam-mini-days" style="background:linear-gradient(90deg,#f59e0b,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">—</div>
+      <div class="exam-mini-date">Jan 17, 2027</div>
+      <div class="exam-mini-label">days left</div>
+    </div>
+
+    <div class="exam-mini">
+      <div class="exam-mini-title" style="background:linear-gradient(90deg,#34d399,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🎨 NID</div>
+      <div id="nid-days" class="exam-mini-days" style="background:linear-gradient(90deg,#34d399,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">—</div>
+      <div class="exam-mini-date">Dec 20, 2026</div>
+      <div class="exam-mini-label">days left</div>
+    </div>
+
+    <div class="exam-mini">
+      <div class="exam-mini-title" style="background:linear-gradient(90deg,#f87171,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">📐 JEE Mains</div>
+      <div class="exam-mini-days" style="background:linear-gradient(90deg,#f87171,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">TBD</div>
+      <div class="exam-mini-date">Date TBD</div>
+      <div class="exam-mini-label">awaiting notif.</div>
+    </div>
+  </div>
+
   <!-- ════ USER CARDS ════ -->
   <div class="user-cards-grid" style="margin-bottom:14px;">
 
@@ -524,19 +556,6 @@ input[type=text]::placeholder{color:#4b6175;}
       </div>
     </div>
     <svg id="graph-svg" viewBox="0 0 340 100"></svg>
-  </div>
-
-  <!-- ════ UCEED 2027 COUNTDOWN ════ -->
-  <div class="uceed-card">
-    <div class="uceed-header">
-      <div class="uceed-title">🎯 UCEED 2027</div>
-      <div style="font-size:9px;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:#4b6175;">Jan 17, 2027</div>
-    </div>
-    <div style="display:flex;align-items:baseline;gap:8px;">
-      <div id="uceed-days" class="uceed-days">—</div>
-      <div style="font-size:12px;color:#475569;font-weight:600;">days remaining</div>
-    </div>
-    <div class="uceed-grid" id="uceed-grid"></div>
   </div>
 
   <!-- ════ PERIOD TRACKER (Lightfury) ════ -->
@@ -1271,16 +1290,27 @@ document.addEventListener('keydown',e=>{
   const TARGET=new Date('2027-01-17T00:00:00');
   function update(){
     const now=new Date(), diff=TARGET-now;
-    if(diff<=0){document.getElementById('uceed-days').textContent='0';return;}
+    const el=document.getElementById('uceed-days');
+    if(!el) return;
+    if(diff<=0){el.textContent='0';return;}
     const days=Math.ceil(diff/86400000);
-    const weeks=Math.floor(days/7);
-    const months=Math.floor(days/30.44);
-    const hrs=Math.floor(diff/3600000);
-    document.getElementById('uceed-days').textContent=days.toLocaleString();
-    document.getElementById('uceed-grid').innerHTML=[
-      ['Weeks',weeks],['Months',`~${months}`],
-      ['Hours',hrs.toLocaleString()],['Days in month',Math.ceil((new Date(now.getFullYear(),now.getMonth()+1,0)-now)/86400000)]
-    ].map(([l,v])=>`<div class="uceed-cell"><div class="uceed-val">${v}</div><div class="uceed-lbl">${l}</div></div>`).join('');
+    el.textContent=days.toLocaleString();
+  }
+  update(); setInterval(update,60000);
+})();
+
+// ════════════════════════════════
+// NID 2027 COUNTDOWN
+// ════════════════════════════════
+(function nidCountdown(){
+  const TARGET=new Date('2026-12-20T00:00:00');
+  function update(){
+    const now=new Date(), diff=TARGET-now;
+    const el=document.getElementById('nid-days');
+    if(!el) return;
+    if(diff<=0){el.textContent='0';return;}
+    const days=Math.ceil(diff/86400000);
+    el.textContent=days.toLocaleString();
   }
   update(); setInterval(update,60000);
 })();
