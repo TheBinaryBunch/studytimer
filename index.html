@@ -28,7 +28,12 @@ body{font-family:'Inter',sans-serif;background:#030712;color:#f1f5f9;min-height:
 .user-name-v{font-size:17px;font-weight:800;color:#60a5fa;line-height:1;}
 .user-name-g{font-size:17px;font-weight:800;color:#f472b6;line-height:1;}
 .header-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px;}
-.study-timer{font-size:26px;font-weight:700;letter-spacing:.04em;color:#e2e8f0;font-family:'JetBrains Mono',monospace;line-height:1;}
+.study-timer{font-size:26px;font-weight:700;letter-spacing:.04em;color:#e2e8f0;font-family:'JetBrains Mono',monospace;line-height:1;transition:color .2s;}
+.study-timer.adj-fail{color:#f87171;}
+.adj-row{display:flex;gap:5px;}
+.adj-btn{background:#111827;border:1px solid #2a3a50;border-radius:8px;padding:3px 9px;font-size:10px;font-weight:700;font-family:'JetBrains Mono',monospace;color:#64748b;cursor:pointer;line-height:1.3;transition:all .12s;user-select:none;-webkit-user-select:none;touch-action:manipulation;}
+.adj-btn:hover{border-color:#475569;color:#cbd5e1;}
+.adj-btn:active{background:#1e293b;}
 
 /* ── status pill ── */
 .status-pill{display:inline-flex;align-items:center;gap:5px;font-size:10px;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:#475569;margin-top:3px;}
@@ -181,7 +186,16 @@ input[type=text]::placeholder{color:#4b6175;}
 .exam-mini-label{font-size:9px;color:#475569;font-weight:600;margin-top:2px;}
 
 /* ════ WORDLE — today's winner ════ */
-.wordle-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.wordle-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:10px 14px 12px;margin-bottom:14px;}
+.wordle-top{display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.wordle-board{display:flex;align-items:stretch;gap:8px;margin-top:10px;padding-top:10px;border-top:1px solid #1e293b;}
+.wb-cell{flex:1;background:#070e1a;border:1px solid #1e293b;border-radius:12px;padding:8px 10px;display:flex;align-items:center;justify-content:space-between;gap:8px;transition:all .15s;}
+.wb-name{font-size:11px;font-weight:800;letter-spacing:.04em;}
+.wb-num{font-size:22px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1;color:#475569;}
+.wb-cell.wv .wb-name{color:#60a5fa;} .wb-cell.wg .wb-name{color:#f472b6;}
+.wb-cell.wv.lead{border-color:rgba(37,99,235,.5);background:rgba(37,99,235,.1);} .wb-cell.wv.lead .wb-num{color:#93c5fd;}
+.wb-cell.wg.lead{border-color:rgba(219,39,119,.5);background:rgba(219,39,119,.1);} .wb-cell.wg.lead .wb-num{color:#f9a8d4;}
+.wb-vs{align-self:center;font-size:9px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:#334155;}
 .wordle-title{font-size:13px;font-weight:800;color:#e2e8f0;}
 .wordle-sub{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#4b6175;margin-top:2px;}
 .wordle-btns{display:flex;gap:6px;}
@@ -402,13 +416,20 @@ input[type=text]::placeholder{color:#4b6175;}
 
   <!-- ════ WORDLE — TODAY'S WINNER ════ -->
   <div class="wordle-card">
-    <div>
-      <div class="wordle-title">🟩 Wordle</div>
-      <div id="wordle-sub" class="wordle-sub">Today's winner</div>
+    <div class="wordle-top">
+      <div>
+        <div class="wordle-title">🟩 Wordle</div>
+        <div id="wordle-sub" class="wordle-sub">Today's winner</div>
+      </div>
+      <div class="wordle-btns">
+        <button id="wordle-btn-Vedant" class="wordle-btn wv" onclick="setWordleWinner('Vedant')">Nightfury</button>
+        <button id="wordle-btn-Girlfriend" class="wordle-btn wg" onclick="setWordleWinner('Girlfriend')">Lightfury</button>
+      </div>
     </div>
-    <div class="wordle-btns">
-      <button id="wordle-btn-Vedant" class="wordle-btn wv" onclick="setWordleWinner('Vedant')">Nightfury</button>
-      <button id="wordle-btn-Girlfriend" class="wordle-btn wg" onclick="setWordleWinner('Girlfriend')">Lightfury</button>
+    <div class="wordle-board">
+      <div id="wb-Vedant" class="wb-cell wv"><span class="wb-name">Nightfury</span><span id="wb-num-Vedant" class="wb-num">0</span></div>
+      <div class="wb-vs">vs</div>
+      <div id="wb-Girlfriend" class="wb-cell wg"><span class="wb-name">Lightfury</span><span id="wb-num-Girlfriend" class="wb-num">0</span></div>
     </div>
   </div>
 
@@ -428,6 +449,10 @@ input[type=text]::placeholder{color:#4b6175;}
       <div class="header-right">
         <button class="btn-dock" onclick="openDockMode('Vedant')" title="Dock mode">⛶ Dock</button>
         <div id="time-Vedant" class="study-timer">00:00:00</div>
+        <div class="adj-row">
+          <button class="adj-btn" onclick="adjustStudy('Vedant',-300)" title="Remove 5 minutes">−5m</button>
+          <button class="adj-btn" onclick="adjustStudy('Vedant',300)" title="Add 5 minutes">+5m</button>
+        </div>
       </div>
     </div>
 
@@ -493,6 +518,10 @@ input[type=text]::placeholder{color:#4b6175;}
       <div class="header-right">
         <button class="btn-dock" onclick="openDockMode('Girlfriend')" title="Dock mode">⛶ Dock</button>
         <div id="time-Girlfriend" class="study-timer">00:00:00</div>
+        <div class="adj-row">
+          <button class="adj-btn" onclick="adjustStudy('Girlfriend',-300)" title="Remove 5 minutes">−5m</button>
+          <button class="adj-btn" onclick="adjustStudy('Girlfriend',300)" title="Add 5 minutes">+5m</button>
+        </div>
       </div>
     </div>
 
@@ -802,8 +831,13 @@ function appDayBoundary(dayKey){
 // WITHOUT needing a client-driven "reset" — a new day's numbers are just the
 // (still-empty, until written) row for that day's key.
 // ════════════════════════════════
+// Manual ±5 min nudges: shown instantly (pending), kept visible while the
+// database write is in flight, then folded into todayData once it lands.
+const adjPending  = { Vedant:0, Girlfriend:0 };
+const adjInflight = { Vedant:0, Girlfriend:0 };
+const adjTimer    = {};
 function liveStudySecondsToday(u){
-  let secs = todayData[u]?.study_seconds || 0;
+  let secs = (todayData[u]?.study_seconds || 0) + adjPending[u] + adjInflight[u];
   const ls = liveStatus[u];
   if(ls && ls.activity===STUDY_ACT && ls.segment_start){
     const boundary=appDayBoundary(currentDayKey);
@@ -955,8 +989,15 @@ function applyAppStateRow(key, rawValue){
     timetables[u]=merged;
     renderTimetable();
 
-  } else if(key==='wordle_winner'){
-    wordleState=(val && val.day) ? val : { day:null, winner:null };
+  } else if(key.startsWith('wordle_')){
+    // 'wordle_YYYY-MM-DD' (current). 'wordle_winner' = the earlier single-day
+    // format; fold it in so a winner already set today isn't lost.
+    if(key==='wordle_winner'){
+      if(val && val.day && val.winner && !wordleWins[val.day]) wordleWins[val.day]=val.winner;
+    } else {
+      const day=key.slice(7);
+      if(val==='Vedant'||val==='Girlfriend') wordleWins[day]=val; else delete wordleWins[day];
+    }
     renderWordle();
 
   } else if(key==='note_for_Vedant'||key==='note_for_Girlfriend'){
@@ -1061,6 +1102,64 @@ async function clearNowDoing(u){ await setActivity(u, null); }
 async function handleToggle(u){
   const isStudying = liveStatus[u]?.activity===STUDY_ACT;
   await setActivity(u, isStudying ? null : STUDY_ACT);
+}
+
+// ════════════════════════════════
+// STUDY TIME NUDGE (±5 min) — for fixing small timer discrepancies.
+// Taps update the display immediately and are batched (~0.7s) into one write
+// to today's day_data.study_seconds. The write first flushes any live
+// segment, then does a compare-and-set on the stored value (retrying if a
+// flush from another device lands in between), so a nudge can never clobber
+// seconds the server just added. Total can't go below 0. The pie, weekly
+// graph and streak all read study_seconds, so they follow automatically.
+// ════════════════════════════════
+function adjustStudy(u, delta){
+  const shown = liveStudySecondsToday(u);
+  if(delta<0 && shown+delta<0) delta = -shown;   // never below 00:00:00
+  if(!delta) return;
+  adjPending[u] += delta;
+  document.getElementById(`time-${u}`).textContent = fmtTime(liveStudySecondsToday(u));
+  renderPie(u); updateStreakBadge(u);
+  clearTimeout(adjTimer[u]);
+  adjTimer[u] = setTimeout(()=>commitStudyAdjust(u), 700);
+}
+async function commitStudyAdjust(u){
+  if(adjInflight[u]){ adjTimer[u]=setTimeout(()=>commitStudyAdjust(u),400); return; }
+  const delta = adjPending[u];
+  if(!delta) return;
+  adjInflight[u]=delta; adjPending[u]=0;
+  const day=currentDayKey;
+  let ok=false, finalVal=0;
+  try{
+    await flushSegment(u);
+    for(let i=0;i<4 && !ok;i++){
+      const { data:row, error:rErr } = await _sb.from('day_data')
+        .select('study_seconds').eq('user_name',u).eq('day_key',day).maybeSingle();
+      if(rErr) throw rErr;
+      if(!row){
+        const val=Math.max(0,delta);
+        const { error } = await _sb.from('day_data').insert({ user_name:u, day_key:day, study_seconds:val });
+        if(!error){ ok=true; finalVal=val; }   // on conflict, another device created the row first — loop and update it
+        continue;
+      }
+      const old=row.study_seconds||0, val=Math.max(0,old+delta);
+      const { data:upd, error } = await _sb.from('day_data')
+        .update({ study_seconds:val })
+        .eq('user_name',u).eq('day_key',day).eq('study_seconds',old).select('study_seconds');
+      if(error) throw error;
+      if(upd && upd.length){ ok=true; finalVal=val; }
+    }
+  }catch(e){ console.error(`❌ study time adjust failed [${u}]:`, e.message||e); }
+  if(ok){
+    historyData[u][day]=finalVal;
+    if(day===currentDayKey) todayData[u].study_seconds=finalVal;
+  }
+  adjInflight[u]=0;
+  if(ok){ renderPie(u); renderStudyGraph(); updateStreakBadge(u); }
+  else {
+    const el=document.getElementById(`time-${u}`);
+    el.classList.add('adj-fail'); setTimeout(()=>el.classList.remove('adj-fail'),1500);
+  }
 }
 
 // ════════════════════════════════
@@ -1343,29 +1442,34 @@ startCountdown('jeemain-days', '2027-01-20T00:00:00');
 startCountdown('jeeadv-days',  '2027-05-23T00:00:00');
 
 // ════════════════════════════════
-// WORDLE — today's winner. One shared row in app_state ('wordle_winner'),
-// stamped with the app-day it was set on, so it silently "expires" at the
-// 1:30 AM rollover — no reset logic or cleanup needed. Tap the active
-// button again to clear it.
+// WORDLE — daily winner + all-time scoreboard.
+// One app_state row PER DAY ('wordle_YYYY-MM-DD' → 'Vedant' | 'Girlfriend' |
+// null), keyed to the app-day (1:30 AM boundary). Per-day rows mean two
+// devices can never overwrite each other's history, and the scoreboard is
+// simply a count of those rows. Tap today's active button again to clear it.
 // ════════════════════════════════
-let wordleState = { day:null, winner:null };
+let wordleWins = {}; // dayKey -> 'Vedant' | 'Girlfriend'
 function renderWordle(){
-  const today = (wordleState.day===currentDayKey) ? wordleState.winner : null;
+  const today = wordleWins[currentDayKey] || null;
   const names = { Vedant:'Nightfury', Girlfriend:'Lightfury' };
+  const totals = { Vedant:0, Girlfriend:0 };
+  Object.values(wordleWins).forEach(w=>{ if(totals[w]!==undefined) totals[w]++; });
   USERS.forEach(u=>{
     const b=document.getElementById('wordle-btn-'+u);
-    if(!b) return;
-    b.classList.toggle('active', today===u);
-    b.textContent=(today===u?'🏆 ':'')+names[u];
+    if(b){ b.classList.toggle('active', today===u); b.textContent=(today===u?'🏆 ':'')+names[u]; }
+    const n=document.getElementById('wb-num-'+u); if(n) n.textContent=totals[u];
+    const c=document.getElementById('wb-'+u);
+    if(c) c.classList.toggle('lead', totals[u]>0 && totals[u]>totals[u==='Vedant'?'Girlfriend':'Vedant']);
   });
   const sub=document.getElementById('wordle-sub');
   if(sub) sub.textContent = today ? `${names[today]} won today` : "Today's winner";
 }
 function setWordleWinner(u){
-  const current=(wordleState.day===currentDayKey) ? wordleState.winner : null;
-  wordleState={ day:currentDayKey, winner: current===u ? null : u };
+  const day=currentDayKey;
+  const next = (wordleWins[day]===u) ? null : u;
+  if(next) wordleWins[day]=next; else delete wordleWins[day];
   renderWordle();
-  setState('wordle_winner', wordleState);
+  setState('wordle_'+day, next);
 }
 
 // ════════════════════════════════
