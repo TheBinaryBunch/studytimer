@@ -172,12 +172,24 @@ input[type=text]::placeholder{color:#4b6175;}
 .uceed-lbl{font-size:9px;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:#4b6175;margin-top:1px;}
 
 /* ════ EXAM COUNTDOWNS ROW (compact, 3-up) ════ */
-.exam-row{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:14px;}
+.exam-row{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:14px;}
+@media (max-width:480px){ .exam-row{grid-template-columns:1fr 1fr;} }
 .exam-mini{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 6px;text-align:center;}
 .exam-mini-title{font-size:11px;font-weight:800;line-height:1.15;}
 .exam-mini-days{font-size:24px;font-weight:800;font-family:'JetBrains Mono',monospace;line-height:1;margin-top:6px;}
 .exam-mini-date{font-size:8px;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:#4b6175;margin-top:6px;}
 .exam-mini-label{font-size:9px;color:#475569;font-weight:600;margin-top:2px;}
+
+/* ════ WORDLE — today's winner ════ */
+.wordle-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:10px 14px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
+.wordle-title{font-size:13px;font-weight:800;color:#e2e8f0;}
+.wordle-sub{font-size:10px;font-weight:600;letter-spacing:.06em;text-transform:uppercase;color:#4b6175;margin-top:2px;}
+.wordle-btns{display:flex;gap:6px;}
+.wordle-btn{background:#111827;border:1px solid #2a3a50;border-radius:20px;padding:6px 12px;font-size:12px;font-weight:700;font-family:'Inter',sans-serif;color:#7a90a8;cursor:pointer;transition:all .12s;white-space:nowrap;}
+.wordle-btn.wv:hover{background:rgba(37,99,235,.12);border-color:rgba(37,99,235,.4);color:#93c5fd;}
+.wordle-btn.wg:hover{background:rgba(219,39,119,.12);border-color:rgba(219,39,119,.4);color:#f9a8d4;}
+.wordle-btn.wv.active{background:#2563eb;border-color:#2563eb;color:#fff;}
+.wordle-btn.wg.active{background:#db2777;border-color:#db2777;color:#fff;}
 
 /* ════ DAYS TOGETHER ════ */
 .together-card{background:#0f172a;border:1px solid #1e293b;border-radius:16px;padding:12px 16px;margin-bottom:14px;display:flex;align-items:center;justify-content:space-between;gap:10px;}
@@ -375,9 +387,28 @@ input[type=text]::placeholder{color:#4b6175;}
 
     <div class="exam-mini">
       <div class="exam-mini-title" style="background:linear-gradient(90deg,#f87171,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">📐 JEE Mains</div>
-      <div class="exam-mini-days" style="background:linear-gradient(90deg,#f87171,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">TBD</div>
-      <div class="exam-mini-date">Date TBD</div>
-      <div class="exam-mini-label">awaiting notif.</div>
+      <div id="jeemain-days" class="exam-mini-days" style="background:linear-gradient(90deg,#f87171,#fbbf24);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">—</div>
+      <div class="exam-mini-date">Jan 20, 2027</div>
+      <div class="exam-mini-label">days left · Session 2: Apr 2</div>
+    </div>
+
+    <div class="exam-mini">
+      <div class="exam-mini-title" style="background:linear-gradient(90deg,#fb923c,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">🏛️ JEE Advanced</div>
+      <div id="jeeadv-days" class="exam-mini-days" style="background:linear-gradient(90deg,#fb923c,#f472b6);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">—</div>
+      <div class="exam-mini-date">May 23, 2027</div>
+      <div class="exam-mini-label">days left</div>
+    </div>
+  </div>
+
+  <!-- ════ WORDLE — TODAY'S WINNER ════ -->
+  <div class="wordle-card">
+    <div>
+      <div class="wordle-title">🟩 Wordle</div>
+      <div id="wordle-sub" class="wordle-sub">Today's winner</div>
+    </div>
+    <div class="wordle-btns">
+      <button id="wordle-btn-Vedant" class="wordle-btn wv" onclick="setWordleWinner('Vedant')">Nightfury</button>
+      <button id="wordle-btn-Girlfriend" class="wordle-btn wg" onclick="setWordleWinner('Girlfriend')">Lightfury</button>
     </div>
   </div>
 
@@ -924,6 +955,10 @@ function applyAppStateRow(key, rawValue){
     timetables[u]=merged;
     renderTimetable();
 
+  } else if(key==='wordle_winner'){
+    wordleState=(val && val.day) ? val : { day:null, winner:null };
+    renderWordle();
+
   } else if(key==='note_for_Vedant'||key==='note_for_Girlfriend'){
     if(!val||!val.text) return;
     if(lastSentNoteId[key]===val.id){
@@ -1038,6 +1073,7 @@ function checkDayRollover(){
   const k=appDayKey(new Date());
   if(k!==currentDayKey){
     currentDayKey=k;
+    renderWordle();
     periodicFlush();
     setTimeout(refreshDayData, 1500); // give the flush a moment to land
   }
@@ -1284,36 +1320,53 @@ document.addEventListener('keydown',e=>{
 });
 
 // ════════════════════════════════
-// UCEED 2027 COUNTDOWN
+// EXAM COUNTDOWNS — all confirmed dates (IST, local midnight)
+//   NID          Dec 20, 2026
+//   UCEED        Jan 17, 2027
+//   JEE Main     Session 1 starts Jan 20, 2027 (Session 2: Apr 2–7, 2027)
+//   JEE Advanced May 23, 2027 (IIT Delhi)
 // ════════════════════════════════
-(function uceedCountdown(){
-  const TARGET=new Date('2027-01-17T00:00:00');
+function startCountdown(elId, targetStr){
+  const TARGET=new Date(targetStr);
   function update(){
-    const now=new Date(), diff=TARGET-now;
-    const el=document.getElementById('uceed-days');
+    const el=document.getElementById(elId);
     if(!el) return;
-    if(diff<=0){el.textContent='0';return;}
-    const days=Math.ceil(diff/86400000);
-    el.textContent=days.toLocaleString();
+    const diff=TARGET-new Date();
+    if(diff<=0){ el.textContent='0'; return; }
+    el.textContent=Math.ceil(diff/86400000).toLocaleString();
   }
   update(); setInterval(update,60000);
-})();
+}
+startCountdown('uceed-days',   '2027-01-17T00:00:00');
+startCountdown('nid-days',     '2026-12-20T00:00:00');
+startCountdown('jeemain-days', '2027-01-20T00:00:00');
+startCountdown('jeeadv-days',  '2027-05-23T00:00:00');
 
 // ════════════════════════════════
-// NID 2027 COUNTDOWN
+// WORDLE — today's winner. One shared row in app_state ('wordle_winner'),
+// stamped with the app-day it was set on, so it silently "expires" at the
+// 1:30 AM rollover — no reset logic or cleanup needed. Tap the active
+// button again to clear it.
 // ════════════════════════════════
-(function nidCountdown(){
-  const TARGET=new Date('2026-12-20T00:00:00');
-  function update(){
-    const now=new Date(), diff=TARGET-now;
-    const el=document.getElementById('nid-days');
-    if(!el) return;
-    if(diff<=0){el.textContent='0';return;}
-    const days=Math.ceil(diff/86400000);
-    el.textContent=days.toLocaleString();
-  }
-  update(); setInterval(update,60000);
-})();
+let wordleState = { day:null, winner:null };
+function renderWordle(){
+  const today = (wordleState.day===currentDayKey) ? wordleState.winner : null;
+  const names = { Vedant:'Nightfury', Girlfriend:'Lightfury' };
+  USERS.forEach(u=>{
+    const b=document.getElementById('wordle-btn-'+u);
+    if(!b) return;
+    b.classList.toggle('active', today===u);
+    b.textContent=(today===u?'🏆 ':'')+names[u];
+  });
+  const sub=document.getElementById('wordle-sub');
+  if(sub) sub.textContent = today ? `${names[today]} won today` : "Today's winner";
+}
+function setWordleWinner(u){
+  const current=(wordleState.day===currentDayKey) ? wordleState.winner : null;
+  wordleState={ day:currentDayKey, winner: current===u ? null : u };
+  renderWordle();
+  setState('wordle_winner', wordleState);
+}
 
 // ════════════════════════════════
 // DAYS TOGETHER
@@ -1752,6 +1805,7 @@ async function init(){
   renderStudyGraph();
   renderTimetable();
   updateAllStreakBadges();
+  renderWordle();
 
   // 6. Wire up Realtime — all subsequent changes arrive via subscriptions
   setupRealtime();
